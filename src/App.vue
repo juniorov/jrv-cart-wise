@@ -20,48 +20,123 @@ async function handleLogout() {
       <button
         class="navbar-toggler"
         type="button"
-        data-bs-toggle="collapse"
+        data-bs-toggle="offcanvas"
         data-bs-target="#mainNav"
         aria-controls="mainNav"
-        aria-expanded="false"
         aria-label="Abrir menú"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div id="mainNav" class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/" active-class="active">Buscar</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/cart" active-class="active">Carrito</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/products" active-class="active">Productos</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/businesses" active-class="active">Negocios</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/settings" active-class="active">Ajustes</RouterLink>
-          </li>
-          <li v-if="authStore.isAuthenticated" class="nav-item">
-            <button class="nav-link btn btn-link" @click="handleLogout">
-              <i class="bi bi-box-arrow-right me-1"></i>Salir
-            </button>
-          </li>
-        </ul>
+      <div
+        id="mainNav"
+        class="offcanvas offcanvas-start offcanvas-md"
+        tabindex="-1"
+        aria-labelledby="mainNavLabel"
+      >
+        <div class="offcanvas-header">
+          <h5 id="mainNavLabel" class="offcanvas-title">
+            <i class="bi bi-cart-check-fill me-1"></i>CartWise
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav ms-md-auto">
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/" active-class="active">Buscar</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/cart" active-class="active">Carrito</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/products" active-class="active">Productos</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/businesses" active-class="active">Negocios</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/settings" active-class="active">Ajustes</RouterLink>
+            </li>
+            <li v-if="authStore.isAuthenticated" class="nav-item">
+              <button class="nav-link btn btn-link" @click="handleLogout">
+                <i class="bi bi-box-arrow-right me-1"></i>Salir
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </nav>
 
-  <main class="container py-4">
+  <main class="container py-4" :class="{ 'pb-mobile-nav': authStore.isAuthenticated }">
     <RouterView />
   </main>
+
+  <nav v-if="authStore.isAuthenticated" class="bottom-nav d-md-none">
+    <RouterLink to="/" class="bottom-nav-item" active-class="active">
+      <i class="bi bi-house-door-fill"></i>
+      <span>Buscar</span>
+    </RouterLink>
+    <RouterLink to="/products" class="bottom-nav-item" active-class="active">
+      <i class="bi bi-plus-circle-fill"></i>
+      <span>Productos</span>
+    </RouterLink>
+    <RouterLink to="/businesses" class="bottom-nav-item" active-class="active">
+      <i class="bi bi-building-fill"></i>
+      <span>Negocios</span>
+    </RouterLink>
+    <RouterLink to="/cart" class="bottom-nav-item" active-class="active">
+      <i class="bi bi-cart-fill"></i>
+      <span>Carrito</span>
+    </RouterLink>
+  </nav>
 </template>
 
 <style scoped>
 .app-navbar {
   background-color: var(--color-primary);
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--spacing-2) 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.bottom-nav-item i {
+  font-size: var(--font-size-lg);
+}
+
+.bottom-nav-item.active {
+  color: var(--color-primary);
+}
+
+@media (max-width: 767.98px) {
+  .pb-mobile-nav {
+    padding-bottom: 4.5rem;
+  }
 }
 </style>
