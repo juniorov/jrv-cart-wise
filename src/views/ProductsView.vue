@@ -12,6 +12,7 @@ import { formatDetailedPrice, formatPrice } from '@/utils/currency'
 import {
   UNIT_TYPES,
   detailedPrice as computeDetailedPrice,
+  packageQtyDisplay,
   packageQtyLabel,
   unitLabel,
   unitSuffix,
@@ -189,7 +190,7 @@ onMounted(loadAll)
             </select>
           </div>
           <div class="col-12 col-sm-2 d-flex gap-1">
-            <button type="submit" class="btn btn-sm btn-success w-100">
+            <button type="submit" class="btn btn-sm btn-success w-100" title="Guardar cambios">
               <i class="bi bi-check-lg"></i>
             </button>
             <button
@@ -238,6 +239,9 @@ onMounted(loadAll)
               <i class="bi bi-shop me-1"></i>{{ businessName(businessId) }}:
               <span class="fw-semibold">
                 {{ formatPrice(entry.price, entry.currency) }} {{ unitSuffix(product.unit) }}
+              </span>
+              <span v-if="packageQtyDisplay(entry.packageQty, product.unit)" class="text-muted">
+                ({{ packageQtyDisplay(entry.packageQty, product.unit) }})
               </span>
               <template
                 v-for="detail in [

@@ -5,7 +5,7 @@ import { searchProducts } from '@/services/products'
 import { addToCart } from '@/services/cart'
 import { useSettingsStore } from '@/stores/settings'
 import { formatDetailedPrice, formatPrice } from '@/utils/currency'
-import { detailedPrice, unitSuffix } from '@/utils/units'
+import { detailedPrice, packageQtyDisplay, unitSuffix } from '@/utils/units'
 
 const settingsStore = useSettingsStore()
 const term = ref('')
@@ -21,7 +21,7 @@ function businessName(businessId) {
 async function runSearch() {
   loading.value = true
   try {
-    results.value = await searchProducts(term.value, settingsStore.usdToCrc ?? 1)
+    results.value = await searchProducts(term.value, settingsStore.usdToCrc ?? 500)
   } finally {
     loading.value = false
   }
@@ -54,14 +54,6 @@ onMounted(async () => {
     />
   </div>
 
-  <div
-    v-if="!settingsStore.usdToCrc"
-    class="alert alert-warning py-2"
-  >
-    No hay tipo de cambio configurado. Los precios en USD no se podrán comparar correctamente
-    hasta que lo definas en Ajustes.
-  </div>
-
   <div v-if="loading" class="text-muted">Buscando…</div>
   <div v-else-if="results.length === 0" class="text-muted">No se encontraron productos.</div>
   <ul v-else class="list-group">
@@ -77,6 +69,9 @@ onMounted(async () => {
           <span class="fw-semibold text-success">
             {{ formatPrice(product.cheapest.price, product.cheapest.currency) }}
             {{ unitSuffix(product.unit) }}
+          </span>
+          <span v-if="packageQtyDisplay(product.cheapest.packageQty, product.unit)">
+            ({{ packageQtyDisplay(product.cheapest.packageQty, product.unit) }})
           </span>
           <template
             v-for="detail in [

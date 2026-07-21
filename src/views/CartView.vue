@@ -19,7 +19,7 @@ async function loadCart() {
   loading.value = true
   if (!settingsStore.loaded) await settingsStore.load()
   const [cartItems, businessList] = await Promise.all([
-    getCartWithCheapestBusiness(settingsStore.usdToCrc ?? 1),
+    getCartWithCheapestBusiness(settingsStore.usdToCrc ?? 500),
     getBusinesses(),
   ])
   items.value = cartItems
@@ -69,7 +69,11 @@ onMounted(loadCart)
         </div>
         <div v-else class="small text-danger">Este producto ya no tiene precios registrados.</div>
       </div>
-      <button class="btn btn-sm btn-outline-danger" @click="handleRemove(item.productId)">
+      <button
+        class="btn btn-sm btn-outline-danger"
+        title="Quitar del carrito"
+        @click="handleRemove(item.productId)"
+      >
         <i class="bi bi-trash"></i>
       </button>
     </li>

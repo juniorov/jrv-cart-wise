@@ -107,10 +107,10 @@ onMounted(loadBusinesses)
           </select>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-success" @click="saveEdit(business.id)">
+          <button class="btn btn-sm btn-success" title="Guardar cambios" @click="saveEdit(business.id)">
             <i class="bi bi-check-lg"></i>
           </button>
-          <button class="btn btn-sm btn-outline-secondary" @click="cancelEdit">
+          <button class="btn btn-sm btn-outline-secondary" title="Cancelar" @click="cancelEdit">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
@@ -121,10 +121,10 @@ onMounted(loadBusinesses)
           <span class="badge text-bg-light ms-2">{{ typeLabel(business.type) }}</span>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary" @click="startEdit(business)">
+          <button class="btn btn-sm btn-outline-secondary" title="Editar negocio" @click="startEdit(business)">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="btn btn-sm btn-outline-danger" @click="handleDelete(business.id)">
+          <button class="btn btn-sm btn-outline-danger" title="Eliminar negocio" @click="handleDelete(business.id)">
             <i class="bi bi-trash"></i>
           </button>
         </div>

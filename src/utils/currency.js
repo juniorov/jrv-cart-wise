@@ -3,17 +3,20 @@ const FORMATTERS = {
   USD: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
 }
 
-// Igual que FORMATTERS pero con más decimales, para montos chicos como precio por gramo.
+// Igual que FORMATTERS pero con un decimal fijo, para el desglose de precio por unidad
+// (ej. precio por gramo/mililitro), que suele ser un monto chico.
 const DETAIL_FORMATTERS = {
   CRC: new Intl.NumberFormat('es-CR', {
     style: 'currency',
     currency: 'CRC',
-    maximumFractionDigits: 4,
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
   }),
   USD: new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    maximumFractionDigits: 4,
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
   }),
 }
 
