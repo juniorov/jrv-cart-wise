@@ -176,7 +176,7 @@ async function handleLogout() {
 
 @media (max-width: 767.98px) {
   .pb-mobile-nav {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom)) !important;
   }
 }
 </style>
