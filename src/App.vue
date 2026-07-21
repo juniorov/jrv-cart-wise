@@ -39,7 +39,7 @@ async function handleLogout() {
           </h5>
           <button
             type="button"
-            class="btn-close"
+            class="btn-close btn-close-white"
             data-bs-dismiss="offcanvas"
             aria-label="Cerrar"
           ></button>
@@ -47,22 +47,52 @@ async function handleLogout() {
         <div class="offcanvas-body">
           <ul class="navbar-nav ms-md-auto">
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/" active-class="active">Buscar</RouterLink>
+              <RouterLink class="nav-link" to="/" active-class="active" data-bs-dismiss="offcanvas">
+                Buscar
+              </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/cart" active-class="active">Carrito</RouterLink>
+              <RouterLink
+                class="nav-link"
+                to="/cart"
+                active-class="active"
+                data-bs-dismiss="offcanvas"
+              >
+                Carrito
+              </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/products" active-class="active">Productos</RouterLink>
+              <RouterLink
+                class="nav-link"
+                to="/products"
+                active-class="active"
+                data-bs-dismiss="offcanvas"
+              >
+                Productos
+              </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/businesses" active-class="active">Negocios</RouterLink>
+              <RouterLink
+                class="nav-link"
+                to="/businesses"
+                active-class="active"
+                data-bs-dismiss="offcanvas"
+              >
+                Negocios
+              </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/settings" active-class="active">Ajustes</RouterLink>
+              <RouterLink
+                class="nav-link"
+                to="/settings"
+                active-class="active"
+                data-bs-dismiss="offcanvas"
+              >
+                Ajustes
+              </RouterLink>
             </li>
             <li v-if="authStore.isAuthenticated" class="nav-item">
-              <button class="nav-link btn btn-link" @click="handleLogout">
+              <button class="nav-link btn btn-link" data-bs-dismiss="offcanvas" @click="handleLogout">
                 <i class="bi bi-box-arrow-right me-1"></i>Salir
               </button>
             </li>
@@ -101,6 +131,15 @@ async function handleLogout() {
   background-color: var(--color-primary);
 }
 
+/* Por debajo de md, el offcanvas es un panel propio (no hereda el fondo oscuro
+   del navbar), así que necesita su propio fondo oscuro para que el texto claro
+   de .navbar-dark siga siendo legible. Desde md, Bootstrap lo vuelve transparente
+   automáticamente (offcanvas-md) y hereda el fondo del navbar. */
+#mainNav {
+  --bs-offcanvas-bg: var(--color-primary);
+  --bs-offcanvas-color: var(--color-on-primary);
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -108,6 +147,7 @@ async function handleLogout() {
   right: 0;
   z-index: var(--z-sticky);
   display: flex;
+  height: 4rem;
   background-color: var(--color-surface);
   border-top: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);
@@ -119,8 +159,8 @@ async function handleLogout() {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
-  padding: var(--spacing-2) 0;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   text-decoration: none;
@@ -136,7 +176,7 @@ async function handleLogout() {
 
 @media (max-width: 767.98px) {
   .pb-mobile-nav {
-    padding-bottom: 4.5rem;
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 }
 </style>
