@@ -1,11 +1,19 @@
 <script setup>
+import { Offcanvas } from 'bootstrap'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const router = useRouter()
 
+function closeMenu() {
+  const el = document.getElementById('mainNav')
+  const instance = el && Offcanvas.getInstance(el)
+  instance?.hide()
+}
+
 async function handleLogout() {
+  closeMenu()
   await authStore.logout()
   router.push({ name: 'login' })
 }
@@ -47,7 +55,7 @@ async function handleLogout() {
         <div class="offcanvas-body">
           <ul class="navbar-nav ms-md-auto">
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/" active-class="active" data-bs-dismiss="offcanvas">
+              <RouterLink class="nav-link" to="/" active-class="active" @click="closeMenu">
                 Buscar
               </RouterLink>
             </li>
@@ -56,7 +64,7 @@ async function handleLogout() {
                 class="nav-link"
                 to="/cart"
                 active-class="active"
-                data-bs-dismiss="offcanvas"
+                @click="closeMenu"
               >
                 Carrito
               </RouterLink>
@@ -66,7 +74,7 @@ async function handleLogout() {
                 class="nav-link"
                 to="/products"
                 active-class="active"
-                data-bs-dismiss="offcanvas"
+                @click="closeMenu"
               >
                 Productos
               </RouterLink>
@@ -76,7 +84,7 @@ async function handleLogout() {
                 class="nav-link"
                 to="/businesses"
                 active-class="active"
-                data-bs-dismiss="offcanvas"
+                @click="closeMenu"
               >
                 Negocios
               </RouterLink>
@@ -86,13 +94,13 @@ async function handleLogout() {
                 class="nav-link"
                 to="/settings"
                 active-class="active"
-                data-bs-dismiss="offcanvas"
+                @click="closeMenu"
               >
                 Ajustes
               </RouterLink>
             </li>
             <li v-if="authStore.isAuthenticated" class="nav-item">
-              <button class="nav-link btn btn-link" data-bs-dismiss="offcanvas" @click="handleLogout">
+              <button class="nav-link btn btn-link" @click="handleLogout">
                 <i class="bi bi-box-arrow-right me-1"></i>Salir
               </button>
             </li>
