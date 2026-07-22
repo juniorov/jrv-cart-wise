@@ -1,6 +1,7 @@
 import {
   collection,
   addDoc,
+  deleteDoc,
   deleteField,
   doc,
   getDocs,
@@ -33,6 +34,10 @@ export async function createProduct({ name, category = null, unit, detailedPrice
 
 export async function updateProduct(productId, { name, category, unit, detailedPrice }) {
   await updateDoc(doc(db, 'products', productId), { name, category, unit, detailedPrice })
+}
+
+export async function deleteProduct(productId) {
+  await deleteDoc(doc(db, 'products', productId))
 }
 
 export async function setProductPrice(productId, businessId, price, currency, packageQty = null) {

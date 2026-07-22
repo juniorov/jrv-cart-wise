@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { getBusinesses } from '@/services/businesses'
 import {
   createProduct,
+  deleteProduct,
   deleteProductPrice,
   getProducts,
   setProductPrice,
@@ -21,6 +22,17 @@ import {
 const products = ref([])
 const businesses = ref([])
 const loading = ref(true)
+const searchTerm = ref('')
+
+const filteredProducts = computed(() => {
+  const term = searchTerm.value.trim().toLowerCase()
+  if (!term) return products.value
+  return products.value.filter(
+    (product) =>
+      product.name.toLowerCase().includes(term) ||
+      (product.category ?? '').toLowerCase().includes(term),
+  )
+})
 
 const name = ref('')
 const category = ref('')
@@ -118,6 +130,13 @@ async function handleSetPrice(productId) {
   await loadAll()
 }
 
+async function handleDeleteProduct(productId) {
+  if (!confirm('¿Eliminar este producto y todos sus precios?')) return
+  await deleteProduct(productId)
+  delete priceForms[productId]
+  await loadAll()
+}
+
 async function handleDeletePrice(productId, businessId) {
   if (!confirm('¿Eliminar este precio?')) return
   await deleteProductPrice(productId, businessId)
@@ -165,10 +184,26 @@ onMounted(loadAll)
     </div>
   </div>
 
+  <div v-if="!loading && products.length" class="mb-3">
+    <div class="input-group">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        v-model="searchTerm"
+        type="search"
+        class="form-control"
+        placeholder="Buscar producto por nombre o categoría…"
+        aria-label="Buscar producto"
+      />
+    </div>
+  </div>
+
   <div v-if="loading" class="text-muted">Cargando…</div>
   <div v-else-if="products.length === 0" class="text-muted">Aún no hay productos agregados.</div>
+  <div v-else-if="filteredProducts.length === 0" class="text-muted">
+    No se encontraron productos para "{{ searchTerm }}".
+  </div>
   <div v-else class="d-flex flex-column gap-3">
-    <div v-for="product in products" :key="product.id" class="card shadow-sm border-0">
+    <div v-for="product in filteredProducts" :key="product.id" class="card shadow-sm border-0">
       <div class="card-body">
         <form
           v-if="editingProductId === product.id"
@@ -219,14 +254,24 @@ onMounted(loadAll)
         <h2 v-else class="h6 mb-2 d-flex align-items-center gap-2">
           {{ product.name }}
           <span class="badge text-bg-light fw-normal">{{ unitLabel(product.unit) }}</span>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary py-0 px-1 ms-auto"
-            title="Editar producto"
-            @click="startEditProduct(product)"
-          >
-            <i class="bi bi-pencil"></i>
-          </button>
+          <span class="d-flex gap-1 ms-auto">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary py-0 px-1"
+              title="Editar producto"
+              @click="startEditProduct(product)"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger py-0 px-1"
+              title="Eliminar producto"
+              @click="handleDeleteProduct(product.id)"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </span>
         </h2>
 
         <ul v-if="Object.keys(product.prices ?? {}).length" class="list-unstyled small mb-3">
@@ -279,6 +324,7 @@ onMounted(loadAll)
         </ul>
         <p v-else class="text-muted small mb-3">Sin precios registrados todavía.</p>
 
+        <template v-if="editingProductId !== product.id">
         <div v-if="priceForm(product.id).editing" class="small text-primary mb-1">
           <i class="bi bi-pencil me-1"></i>Editando precio de
           {{ businessName(priceForm(product.id).businessId) }}
@@ -339,6 +385,7 @@ onMounted(loadAll)
             </button>
           </div>
         </form>
+        </template>
       </div>
     </div>
   </div>
