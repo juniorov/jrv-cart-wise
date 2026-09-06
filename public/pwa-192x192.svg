@@ -1,10 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="96" fill="#10b981"/>
-  <g fill="#ffffff">
-    <path d="M128 160h48l14 56h198a16 16 0 0 1 15.5 20l-30 112a24 24 0 0 1-23.3 18H222.6a24 24 0 0 1-23.3-18l-38.6-152H128z"
-      fill="none" stroke="#ffffff" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="224" cy="408" r="20"/>
-    <circle cx="352" cy="408" r="20"/>
-    <path d="M296 236l24 24 44-44" fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="192" height="192">
+  <rect width="512" height="512" rx="96" fill="#ffffff"/>
+  <!-- Grid de mini-apps con la paleta de marca (naranja + negro) -->
+  <rect x="140" y="140" width="104" height="104" rx="24" fill="#e8590c"/>
+  <rect x="268" y="140" width="104" height="104" rx="24" fill="#000000"/>
+  <rect x="140" y="268" width="104" height="104" rx="24" fill="#000000"/>
+  <rect x="268" y="268" width="104" height="104" rx="24" fill="#e8590c"/>
+  <path d="M304 300v40M284 320h40" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
 </svg>
