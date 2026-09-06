@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a"/>
+      <stop offset="100%" style="stop-color:#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="38" fill="url(#bg)"/>
+  <!-- Two arrows forming a cycle (exchange symbol) -->
+  <g transform="translate(96,96)" fill="none" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top arrow: left to right -->
+    <path d="M-50,-22 L30,-22" stroke-width="9"/>
+    <polyline points="16,-36 34,-22 16,-8" stroke-width="9"/>
+    <!-- Bottom arrow: right to left -->
+    <path d="M50,22 L-30,22" stroke-width="9"/>
+    <polyline points="-16,8 -34,22 -16,36" stroke-width="9"/>
+  </g>
+  <!-- Dollar sign -->
+  <text x="96" y="104" font-family="Arial, sans-serif" font-size="28" font-weight="bold"
+        fill="rgba(255,255,255,0.25)" text-anchor="middle" dominant-baseline="middle">$</text>
+</svg>

@@ -2,6 +2,9 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import './style.css'
+import './apps/cart-wise/style.css'
+import './apps/global-exchange/style.css'
+import './apps/calc-invoices/style.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -21,11 +24,11 @@ app.mount('#app')
 
 const updateSW = registerSW({
   onNeedRefresh() {
-    if (confirm('Hay una nueva versión de CartWise disponible. ¿Actualizar ahora?')) {
+    if (confirm('Hay una nueva versión de JRV Tools disponible. ¿Actualizar ahora?')) {
       updateSW(true)
     }
   },
   onOfflineReady() {
-    console.info('CartWise está listo para funcionar sin conexión.')
+    console.info('JRV Tools está listo para funcionar sin conexión.')
   },
 })

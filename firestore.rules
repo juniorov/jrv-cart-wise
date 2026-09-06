@@ -6,6 +6,31 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // --- cart-wise (prefijo cartwise_) ---
+    match /cartwise_businesses/{businessId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /cartwise_products/{productId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /cartwise_settings/{settingId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /users/{userId}/cartwise_cart/{productId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Perfil compartido del suite (favoritos/preferencias multi-app a futuro).
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Colecciones viejas (sin prefijo): se mantienen activas solo durante la
+    // migración a las de arriba. Borrar este bloque (y las colecciones) una vez
+    // confirmada la migración. ---
     match /businesses/{businessId} {
       allow read, write: if isSignedIn();
     }

@@ -5,7 +5,7 @@ import {
   deleteBusiness,
   getBusinesses,
   updateBusiness,
-} from '@/services/businesses'
+} from '@/apps/cart-wise/services/businesses'
 
 const BUSINESS_TYPES = [
   { value: 'supermercado', label: 'Supermercado' },

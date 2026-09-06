@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { getBusinesses } from '@/services/businesses'
+import { getBusinesses } from '@/apps/cart-wise/services/businesses'
 import {
   createProduct,
   deleteProduct,
@@ -8,8 +8,8 @@ import {
   getProducts,
   setProductPrice,
   updateProduct,
-} from '@/services/products'
-import { formatDetailedPrice, formatPrice } from '@/utils/currency'
+} from '@/apps/cart-wise/services/products'
+import { formatDetailedPrice, formatPrice } from '@/apps/cart-wise/utils/currency'
 import {
   UNIT_TYPES,
   detailedPrice as computeDetailedPrice,
@@ -17,7 +17,7 @@ import {
   packageQtyLabel,
   unitLabel,
   unitSuffix,
-} from '@/utils/units'
+} from '@/apps/cart-wise/utils/units'
 
 const products = ref([])
 const businesses = ref([])

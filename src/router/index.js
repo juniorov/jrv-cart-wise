@@ -1,24 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import cartWiseRoutes from '@/apps/cart-wise/routes'
+import globalExchangeRoutes from '@/apps/global-exchange/routes'
+import calcInvoicesRoutes from '@/apps/calc-invoices/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', name: 'search', component: () => import('@/views/SearchView.vue') },
-    { path: '/cart', name: 'cart', component: () => import('@/views/CartView.vue') },
-    { path: '/products', name: 'products', component: () => import('@/views/ProductsView.vue') },
     {
-      path: '/businesses',
-      name: 'businesses',
-      component: () => import('@/views/BusinessesView.vue'),
+      path: '/',
+      name: 'home',
+      component: () => import('@/shared/views/HomeView.vue'),
+      meta: { public: true },
     },
-    { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/LoginView.vue'),
+      component: () => import('@/shared/views/LoginView.vue'),
       meta: { public: true },
     },
+    cartWiseRoutes,
+    globalExchangeRoutes,
+    calcInvoicesRoutes,
   ],
 })
 
@@ -35,11 +38,11 @@ router.beforeEach(async (to) => {
     })
   }
 
-  if (!to.meta.public && !authStore.isAuthenticated) {
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
   if (to.name === 'login' && authStore.isAuthenticated) {
-    return { name: 'search' }
+    return { path: '/' }
   }
 })
 

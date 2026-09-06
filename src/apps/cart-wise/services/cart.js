@@ -1,6 +1,6 @@
 import { collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from '@/firebase'
-import { getCheapestEntry } from '@/services/products'
+import { getCheapestEntry } from '@/apps/cart-wise/services/products'
 
 function requireUid() {
   const uid = auth.currentUser?.uid
@@ -9,7 +9,7 @@ function requireUid() {
 }
 
 function cartRef(uid) {
-  return collection(db, 'users', uid, 'cart')
+  return collection(db, 'users', uid, 'cartwise_cart')
 }
 
 export async function addToCart(productId) {
@@ -36,7 +36,7 @@ export async function getCartWithCheapestBusiness(usdToCrc) {
   const items = await Promise.all(
     cartSnapshot.docs.map(async (cartDoc) => {
       const productId = cartDoc.id
-      const productSnapshot = await getDoc(doc(db, 'products', productId))
+      const productSnapshot = await getDoc(doc(db, 'cartwise_products', productId))
       if (!productSnapshot.exists()) return null
 
       const product = productSnapshot.data()

@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 
-const businessesRef = collection(db, 'businesses')
+const businessesRef = collection(db, 'cartwise_businesses')
 
 export async function getBusinesses() {
   const snapshot = await getDocs(query(businessesRef, orderBy('name')))
@@ -28,9 +28,9 @@ export async function createBusiness({ name, type }) {
 }
 
 export async function updateBusiness(businessId, { name, type }) {
-  await updateDoc(doc(db, 'businesses', businessId), { name, type })
+  await updateDoc(doc(db, 'cartwise_businesses', businessId), { name, type })
 }
 
 export async function deleteBusiness(businessId) {
-  await deleteDoc(doc(db, 'businesses', businessId))
+  await deleteDoc(doc(db, 'cartwise_businesses', businessId))
 }

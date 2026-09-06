@@ -1,3 +1,18 @@
+# AGENTS.md — Base técnica del suite JRV Tools (host: jrv-cart-wise)
+
+> **Este repo ya no es solo CartWise.** Es la base de un PWA multi-herramienta ("JRV Tools") que
+> aloja varias mini-apps independientes (`cart-wise`, `global-exchange`, `calc-invoices`, y las que
+> se agreguen a futuro), cada una en `src/apps/<slug>/`. **Ver [`APPS.md`](./APPS.md) primero**
+> para saber en qué carpeta trabajar según el nombre de proyecto que mencione el usuario, y para
+> las convenciones de namespacing (Firestore, `localStorage`) que evitan que las apps choquen
+> entre sí.
+>
+> Todo lo que sigue en este documento describe específicamente la mini-app **cart-wise**
+> (`src/apps/cart-wise/`). El shell del host (topbar, launcher, router raíz, auth compartida) está
+> documentado en `APPS.md`, no aquí.
+
+---
+
 # STACK.md — Base técnica para CartWise (comparador de precios entre negocios)
 
 Este documento describe el stack técnico a usar en este proyecto **CartWise**, pensado para ser

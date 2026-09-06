@@ -1,0 +1,6 @@
+/* Fondo gradiente índigo/morado de calc-invoices, escopado a .app-calc-invoices. */
+.app-calc-invoices {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: calc(100dvh - 2.75rem);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

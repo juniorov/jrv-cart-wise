@@ -1,0 +1,409 @@
+/* Tokens y estilos de global-exchange, escopados a .app-global-exchange para no afectar otras apps. */
+.app-global-exchange {
+  --color-latam: #f59e0b;
+  --color-americas: #10b981;
+  --color-europe: #3b82f6;
+  --color-asia: #8b5cf6;
+  --color-oceania: #06b6d4;
+  --color-mideast: #f97316;
+  --color-africa: #ef4444;
+
+  --header-from: #1e3a8a;
+  --header-to: #1d4ed8;
+  --bg-app: #f1f5f9;
+
+  background-color: var(--bg-app);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: calc(100dvh - 2.75rem);
+  /* Prevent pull-to-refresh accidental trigger */
+  overscroll-behavior-y: contain;
+}
+
+/* ===== Header ===== */
+.app-global-exchange .app-header {
+  background: linear-gradient(135deg, var(--header-from) 0%, var(--header-to) 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(30, 58, 138, 0.25);
+}
+
+.app-global-exchange .header-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.app-global-exchange .app-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: white;
+  margin: 0;
+}
+
+.app-global-exchange .app-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ===== Status Bar ===== */
+.app-global-exchange .status-bar {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+  min-height: 36px;
+}
+
+.app-global-exchange .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.app-global-exchange .status-dot--online {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  animation: pulse-online 2.5s infinite;
+}
+
+.app-global-exchange .status-dot--offline {
+  background: #ef4444;
+}
+
+@keyframes pulse-online {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ===== Header logo ===== */
+.app-global-exchange .header-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* ===== Install Banner (Android) ===== */
+.app-global-exchange .install-banner {
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+}
+
+.app-global-exchange .install-banner__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+}
+
+.app-global-exchange .install-banner__text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.app-global-exchange .install-banner__btn {
+  min-height: 36px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* ===== iOS tip ===== */
+.app-global-exchange .ios-tip {
+  background: #fff7ed;
+  border-bottom: 1px solid #fed7aa;
+}
+
+.app-global-exchange .ios-tip__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+}
+
+.app-global-exchange .ios-tip__text {
+  font-size: 0.85rem;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.app-global-exchange .ios-share-icon {
+  font-style: normal;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* ===== Installed toast ===== */
+.app-global-exchange .installed-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 0.6rem 1.25rem;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 9999;
+  white-space: nowrap;
+  animation: toast-in 0.25s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ===== Letter spacing utility ===== */
+.app-global-exchange .letter-spacing {
+  letter-spacing: 0.06em;
+}
+
+/* ===== Results section ===== */
+.app-global-exchange .results-label {
+  font-size: 0.8rem;
+}
+
+.app-global-exchange .result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #fff;
+  border-radius: 0.875rem;
+  border-left: 4px solid var(--region-color, #3b82f6);
+  padding: 0.875rem 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.15s ease;
+  min-height: 68px;
+}
+
+.app-global-exchange .result-row:active {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.app-global-exchange .result-row__flag {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.app-global-exchange .result-row__code {
+  font-size: 1rem;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.app-global-exchange .result-row__name {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.app-global-exchange .result-row__amount {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 55%;
+  word-break: break-all;
+}
+
+.app-global-exchange .result-skeleton {
+  background: #fff;
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* ===== Converter Card ===== */
+.app-global-exchange .converter-card {
+  border: none !important;
+  border-radius: 1rem !important;
+  background: #fff;
+}
+
+/* ===== Amount Input ===== */
+.app-global-exchange .amount-input {
+  font-size: 1.6rem !important;
+  font-weight: 600;
+  border-left: none !important;
+  border-right: none !important;
+  touch-action: manipulation;
+}
+
+.app-global-exchange .amount-input:focus {
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.app-global-exchange .flag-prefix,
+.app-global-exchange .code-suffix {
+  border-color: #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  user-select: none;
+}
+
+.app-global-exchange .input-group .form-control {
+  border-color: #e2e8f0;
+}
+
+.app-global-exchange .input-group .form-control:focus {
+  box-shadow: none;
+}
+
+/* ===== From Currency Select ===== */
+.app-global-exchange .form-select {
+  border-color: #e2e8f0;
+  background-color: #f8fafc;
+  min-height: 48px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.app-global-exchange .form-select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ===== Currency Selector Panel ===== */
+.app-global-exchange .currency-selector-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+  background: #f8fafc;
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.app-global-exchange .currency-selector-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.app-global-exchange .currency-selector-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.app-global-exchange .region-group:last-child {
+  margin-bottom: 0 !important;
+}
+
+.app-global-exchange .region-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #94a3b8;
+}
+
+/* ===== Currency chips (buttons) ===== */
+.app-global-exchange .currency-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.4rem;
+}
+
+.app-global-exchange .currency-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  min-height: 44px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  touch-action: manipulation;
+  position: relative;
+  text-align: left;
+  line-height: 1;
+}
+
+.app-global-exchange .currency-chip:hover:not(:disabled) {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.app-global-exchange .currency-chip:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.app-global-exchange .currency-chip--selected {
+  border-color: #3b82f6 !important;
+  background: #eff6ff !important;
+  color: #1d4ed8;
+}
+
+.app-global-exchange .currency-chip--from {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.app-global-exchange .currency-chip__code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-global-exchange .currency-chip__check {
+  font-size: 0.7rem;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* ===== Empty state ===== */
+.app-global-exchange .empty-state .btn {
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+/* ===== Buttons ===== */
+.app-global-exchange .btn {
+  touch-action: manipulation;
+}
+
+.app-global-exchange .btn-primary {
+  font-weight: 600;
+}
+
+/* ===== Footer ===== */
+.app-global-exchange footer a {
+  text-decoration: none;
+}
+.app-global-exchange footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Responsive — mobile first ===== */
+@media (min-width: 640px) {
+  .app-global-exchange .result-row__amount {
+    font-size: 1.6rem;
+  }
+
+  .app-global-exchange .currency-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-global-exchange .app-title {
+    font-size: 1.5rem;
+  }
+}
