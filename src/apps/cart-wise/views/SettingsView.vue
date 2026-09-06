@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore } from '@/apps/cart-wise/stores/settings'
 
 const settingsStore = useSettingsStore()
 const loading = ref(true)

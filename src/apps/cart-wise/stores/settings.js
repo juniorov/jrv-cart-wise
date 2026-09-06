@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { fetchExchangeRate } from '@/services/settings'
+import { fetchExchangeRate } from '@/apps/cart-wise/services/settings'
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({

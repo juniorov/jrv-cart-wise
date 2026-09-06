@@ -1,11 +1,11 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import { getBusinesses } from '@/services/businesses'
-import { searchProducts } from '@/services/products'
-import { addToCart } from '@/services/cart'
-import { useSettingsStore } from '@/stores/settings'
-import { formatDetailedPrice, formatPrice } from '@/utils/currency'
-import { detailedPrice, packageQtyDisplay, unitSuffix } from '@/utils/units'
+import { getBusinesses } from '@/apps/cart-wise/services/businesses'
+import { searchProducts } from '@/apps/cart-wise/services/products'
+import { addToCart } from '@/apps/cart-wise/services/cart'
+import { useSettingsStore } from '@/apps/cart-wise/stores/settings'
+import { formatDetailedPrice, formatPrice } from '@/apps/cart-wise/utils/currency'
+import { detailedPrice, packageQtyDisplay, unitSuffix } from '@/apps/cart-wise/utils/units'
 
 const settingsStore = useSettingsStore()
 const term = ref('')

@@ -1,10 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getBusinesses } from '@/services/businesses'
-import { getCartWithCheapestBusiness, removeFromCart } from '@/services/cart'
-import { useSettingsStore } from '@/stores/settings'
-import { formatDetailedPrice, formatPrice } from '@/utils/currency'
-import { detailedPrice, unitSuffix } from '@/utils/units'
+import { getBusinesses } from '@/apps/cart-wise/services/businesses'
+import { getCartWithCheapestBusiness, removeFromCart } from '@/apps/cart-wise/services/cart'
+import { useSettingsStore } from '@/apps/cart-wise/stores/settings'
+import { formatDetailedPrice, formatPrice } from '@/apps/cart-wise/utils/currency'
+import { detailedPrice, unitSuffix } from '@/apps/cart-wise/utils/units'
 
 const settingsStore = useSettingsStore()
 const items = ref([])

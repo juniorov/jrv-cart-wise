@@ -17,7 +17,7 @@ async function handleSubmit() {
   loading.value = true
   try {
     await authStore.login(email.value, password.value)
-    router.push(route.query.redirect || { name: 'search' })
+    router.push(route.query.redirect || { path: '/' })
   } catch {
     error.value = 'Correo o contraseña incorrectos.'
   } finally {
@@ -32,7 +32,7 @@ async function handleSubmit() {
       <div class="card shadow-sm border-0">
         <div class="card-body p-4">
           <h1 class="h4 mb-4 text-center">
-            <i class="bi bi-cart-check-fill text-primary me-1"></i>CartWise
+            <i class="bi bi-grid-3x3-gap-fill text-primary me-1"></i>JRV Tools
           </h1>
           <form @submit.prevent="handleSubmit">
             <div class="mb-3">

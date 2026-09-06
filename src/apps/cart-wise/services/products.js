@@ -11,9 +11,9 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import { db } from '@/firebase'
-import { toCrc } from '@/utils/currency'
+import { toCrc } from '@/apps/cart-wise/utils/currency'
 
-const productsRef = collection(db, 'products')
+const productsRef = collection(db, 'cartwise_products')
 
 export async function getProducts() {
   const snapshot = await getDocs(query(productsRef, orderBy('name')))
@@ -33,21 +33,21 @@ export async function createProduct({ name, category = null, unit, detailedPrice
 }
 
 export async function updateProduct(productId, { name, category, unit, detailedPrice }) {
-  await updateDoc(doc(db, 'products', productId), { name, category, unit, detailedPrice })
+  await updateDoc(doc(db, 'cartwise_products', productId), { name, category, unit, detailedPrice })
 }
 
 export async function deleteProduct(productId) {
-  await deleteDoc(doc(db, 'products', productId))
+  await deleteDoc(doc(db, 'cartwise_products', productId))
 }
 
 export async function setProductPrice(productId, businessId, price, currency, packageQty = null) {
-  await updateDoc(doc(db, 'products', productId), {
+  await updateDoc(doc(db, 'cartwise_products', productId), {
     [`prices.${businessId}`]: { price, currency, packageQty, updatedAt: serverTimestamp() },
   })
 }
 
 export async function deleteProductPrice(productId, businessId) {
-  await updateDoc(doc(db, 'products', productId), {
+  await updateDoc(doc(db, 'cartwise_products', productId), {
     [`prices.${businessId}`]: deleteField(),
   })
 }
