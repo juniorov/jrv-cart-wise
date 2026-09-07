@@ -44,9 +44,14 @@ async function handleLogout() {
       <RouterLink v-if="!authStore.isAuthenticated" to="/login" class="suite-topbar-btn">
         <i class="bi bi-person-circle"></i>
       </RouterLink>
-      <button v-else class="suite-topbar-btn" type="button" @click="handleLogout" title="Salir">
-        <i class="bi bi-box-arrow-right"></i>
-      </button>
+      <template v-else>
+        <RouterLink to="/perfil" class="suite-topbar-btn" title="Mi cuenta">
+          <i class="bi bi-person-circle"></i>
+        </RouterLink>
+        <button class="suite-topbar-btn" type="button" @click="handleLogout" title="Salir">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </template>
     </div>
   </header>
 </template>

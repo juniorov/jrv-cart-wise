@@ -22,6 +22,12 @@ const router = createRouter({
       component: () => import('@/shared/views/LoginView.vue'),
       meta: { public: true },
     },
+    {
+      path: '/perfil',
+      name: 'profile',
+      component: () => import('@/shared/views/ProfileView.vue'),
+      meta: { requiresAuth: true },
+    },
     cartWiseRoutes,
     globalExchangeRoutes,
     calcInvoicesRoutes,

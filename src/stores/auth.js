@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia'
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import {
+  EmailAuthProvider,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword,
+} from 'firebase/auth'
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from '@/firebase'
 
@@ -35,6 +42,16 @@ export const useAuthStore = defineStore('auth', {
     },
     async logout() {
       await signOut(auth)
+    },
+    /**
+     * Cambia la contraseña del usuario actual. Firebase exige haber iniciado sesión
+     * "recientemente" para operaciones sensibles, así que primero se reautentica con la
+     * contraseña actual (evita tener que pedirle al usuario que vuelva a hacer login).
+     */
+    async changePassword(currentPassword, newPassword) {
+      const credential = EmailAuthProvider.credential(this.user.email, currentPassword)
+      await reauthenticateWithCredential(auth.currentUser, credential)
+      await updatePassword(auth.currentUser, newPassword)
     },
   },
 })
