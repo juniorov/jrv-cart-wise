@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import {
   claimInvite,
   createGoal,
+  deleteGoal,
   getGoals,
   getPendingInvitesForMe,
   getSharedGoals,
@@ -37,6 +38,12 @@ async function loadGoals() {
 async function handleAcceptInvite(goal) {
   const myEmail = authStore.user.email.toLowerCase()
   await claimInvite(goal.id, goal.pendingInvites[myEmail])
+  await loadGoals()
+}
+
+async function handleDelete(goal) {
+  if (!confirm(`¿Eliminar el objetivo "${goal.name}" y todo su historial de aportes?`)) return
+  await deleteGoal(goal.id)
   await loadGoals()
 }
 
@@ -103,13 +110,27 @@ onMounted(loadGoals)
     </div>
     <template v-else>
       <ul class="list-group mb-4">
-        <li v-for="goal in goals" :key="goal.id" class="list-group-item">
-          <RouterLink :to="`/ahorros/objetivos/${goal.id}`" class="text-decoration-none text-body">
+        <li
+          v-for="goal in goals"
+          :key="goal.id"
+          class="list-group-item d-flex justify-content-between align-items-center gap-2"
+        >
+          <RouterLink
+            :to="`/ahorros/objetivos/${goal.id}`"
+            class="text-decoration-none text-body flex-grow-1"
+          >
             <div class="fw-semibold"><i class="bi bi-flag-fill me-2"></i>{{ goal.name }}</div>
             <div v-if="goal.targetAmount" class="text-muted small">
               Meta: {{ formatMoney(goal.targetAmount, goal.currency) }}
             </div>
           </RouterLink>
+          <button
+            class="btn btn-sm btn-outline-danger"
+            title="Eliminar objetivo"
+            @click="handleDelete(goal)"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
         </li>
       </ul>
 
