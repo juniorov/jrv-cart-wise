@@ -12,6 +12,7 @@ PWA multi-herramienta construida con Vue 3 + Vite. Cada mini-app vive aislada ba
 | Calculadora de Cobros | `calc-invoices` | `/calc-invoices` | Cobros con comisión y horas trabajadas |
 | Calendario Lunar | `lunar-garden` | `/lunar-garden` | Cuándo sembrar, podar, fertilizar y fumigar según la fase lunar |
 | Dosificador Agrícola | `spray-mix` | `/spray-mix` | Calcula cuánto producto echar a la bomba según los litros de agua |
+| Ahorros | `ahorros` | `/ahorros` | Metas de ahorro familiares con aportes por persona |
 
 Ver [APPS.md](./APPS.md) para el detalle de arquitectura y cómo agregar una mini-app nueva.
 
