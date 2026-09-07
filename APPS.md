@@ -13,6 +13,7 @@ saber en qué carpeta trabajar:**
 | "global-exchange", "tipo de cambio", "el conversor" | `src/apps/global-exchange/` | `/global-exchange` | — (no usa Firestore) | Prefijo `global_exchange_` (`global_exchange_er_cache_v2`, `global_exchange_converter_prefs_v1`) | No |
 | "calc-invoices", "calculadora de cobros", "las calculadoras" | `src/apps/calc-invoices/` | `/calc-invoices` (+ `/calc-invoices/hours`) | — (sin persistencia) | — | No |
 | "lunar-garden", "calendario lunar", "fases lunares", "cuándo sembrar" | `src/apps/lunar-garden/` | `/lunar-garden` (+ `/lunar-garden/calendario`) | — (cálculo matemático puro, sin datos) | — | No |
+| "spray-mix", "dosificador agrícola", "calculadora de mezclas", "la bomba de fumigar" | `src/apps/spray-mix/` | `/spray-mix` (+ `/spray-mix/productos`) | — (sin Firestore) | Prefijo `spray_mix_` (`spray_mix_products_v1`) | No |
 
 ## Piezas compartidas del host
 

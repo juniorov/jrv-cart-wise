@@ -4,6 +4,7 @@ import cartWiseRoutes from '@/apps/cart-wise/routes'
 import globalExchangeRoutes from '@/apps/global-exchange/routes'
 import calcInvoicesRoutes from '@/apps/calc-invoices/routes'
 import lunarGardenRoutes from '@/apps/lunar-garden/routes'
+import sprayMixRoutes from '@/apps/spray-mix/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +25,7 @@ const router = createRouter({
     globalExchangeRoutes,
     calcInvoicesRoutes,
     lunarGardenRoutes,
+    sprayMixRoutes,
   ],
 })
 

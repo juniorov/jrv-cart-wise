@@ -6,6 +6,7 @@ import './apps/cart-wise/style.css'
 import './apps/global-exchange/style.css'
 import './apps/calc-invoices/style.css'
 import './apps/lunar-garden/style.css'
+import './apps/spray-mix/style.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
