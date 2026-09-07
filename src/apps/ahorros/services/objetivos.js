@@ -1,4 +1,6 @@
 import {
+  arrayRemove,
+  arrayUnion,
   collection,
   deleteDoc,
   deleteField,
@@ -52,6 +54,11 @@ export async function createGoal({ name, targetAmount = null, currency }) {
     currency,
     sharedWith: {},
     pendingInvites: {},
+    // Denormalizados para poder filtrar en queries de lista: Firestore no puede validar de
+    // forma segura contra las reglas un `where` sobre una clave dinámica de un mapa
+    // (ej. `sharedWith.<uid> != null`), pero sí un `array-contains` sobre un campo plano.
+    sharedWithUids: [],
+    pendingInviteEmails: [],
     createdAt: serverTimestamp(),
   })
   return docRef.id
@@ -74,14 +81,16 @@ export async function getGoalMovements(goalId) {
 /** Objetivos que otra persona compartió conmigo (ya aceptados, no privados del dueño). */
 export async function getSharedGoals() {
   const uid = currentUid()
-  const snapshot = await getDocs(query(goalsRef, where(`sharedWith.${uid}`, '!=', null)))
+  const snapshot = await getDocs(query(goalsRef, where('sharedWithUids', 'array-contains', uid)))
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
 /** Invitaciones pendientes dirigidas a mi email, todavía no aceptadas. */
 export async function getPendingInvitesForMe() {
   const email = currentEmail()
-  const snapshot = await getDocs(query(goalsRef, where(`pendingInvites.${email}`, '!=', null)))
+  const snapshot = await getDocs(
+    query(goalsRef, where('pendingInviteEmails', 'array-contains', email)),
+  )
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
@@ -94,15 +103,24 @@ export async function inviteToGoal(goalId, email, role = 'editor') {
   const emailLower = email.trim().toLowerCase()
   const uid = await resolveUidByEmail(emailLower)
   if (uid) {
-    await updateDoc(doc(db, 'ahorros_goals', goalId), { [`sharedWith.${uid}`]: role })
+    await updateDoc(doc(db, 'ahorros_goals', goalId), {
+      [`sharedWith.${uid}`]: role,
+      sharedWithUids: arrayUnion(uid),
+    })
   } else {
-    await updateDoc(doc(db, 'ahorros_goals', goalId), { [`pendingInvites.${emailLower}`]: role })
+    await updateDoc(doc(db, 'ahorros_goals', goalId), {
+      [`pendingInvites.${emailLower}`]: role,
+      pendingInviteEmails: arrayUnion(emailLower),
+    })
   }
 }
 
 /** El dueño quita acceso a un colaborador. */
 export async function removeCollaborator(goalId, uid) {
-  await updateDoc(doc(db, 'ahorros_goals', goalId), { [`sharedWith.${uid}`]: deleteField() })
+  await updateDoc(doc(db, 'ahorros_goals', goalId), {
+    [`sharedWith.${uid}`]: deleteField(),
+    sharedWithUids: arrayRemove(uid),
+  })
 }
 
 /** El invitado acepta su propia invitación pendiente (permitido por la regla de auto-reclamo). */
@@ -111,7 +129,9 @@ export async function claimInvite(goalId, role) {
   const email = currentEmail()
   await updateDoc(doc(db, 'ahorros_goals', goalId), {
     [`sharedWith.${uid}`]: role,
+    sharedWithUids: arrayUnion(uid),
     [`pendingInvites.${email}`]: deleteField(),
+    pendingInviteEmails: arrayRemove(email),
   })
 }
 
