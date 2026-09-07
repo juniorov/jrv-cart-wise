@@ -73,7 +73,7 @@ function formatRange(from, to) {
 
 .calendar-intro {
   color: #94a3b8;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -87,7 +87,7 @@ function formatRange(from, to) {
 .lunar-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #e2e8f0;
 }
 
@@ -183,7 +183,7 @@ function formatRange(from, to) {
   margin: 0;
   padding-left: 1.1rem;
   color: #cbd5e1;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;

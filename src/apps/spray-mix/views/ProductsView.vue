@@ -134,7 +134,7 @@ function handleDelete(id) {
   border-radius: 0.6rem;
   padding: 0.75rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .card {
@@ -166,7 +166,7 @@ function handleDelete(id) {
   padding: 0.55rem 0.65rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-family: inherit;
 }
 
@@ -190,7 +190,7 @@ function handleDelete(id) {
 .btn-secondary {
   padding: 0.55rem 1.1rem;
   border-radius: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   border: none;
 }
@@ -219,7 +219,7 @@ function handleDelete(id) {
 }
 
 .product-dose {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #0d9488;
   margin: 0.15rem 0 0;
 }
@@ -233,8 +233,8 @@ function handleDelete(id) {
   border: none;
   background: #f1f5f9;
   color: #475569;
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 0.5rem;
 }
 
@@ -244,7 +244,7 @@ function handleDelete(id) {
 
 .product-notes {
   margin: 0.6rem 0 0;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #64748b;
 }
 </style>

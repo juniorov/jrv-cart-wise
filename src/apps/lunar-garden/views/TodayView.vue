@@ -147,7 +147,7 @@ const formattedDate = today.toLocaleDateString('es-CR', {
 
 .guide-summary {
   color: #cbd5e1;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   margin-bottom: 1.25rem;
 }
 
@@ -177,7 +177,7 @@ const formattedDate = today.toLocaleDateString('es-CR', {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #e2e8f0;
 }
 
@@ -218,7 +218,7 @@ const formattedDate = today.toLocaleDateString('es-CR', {
   border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: 0.75rem;
   padding: 0.9rem 1rem;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: #cbd5e1;
   text-align: left;
 }
