@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import cartWiseRoutes from '@/apps/cart-wise/routes'
 import globalExchangeRoutes from '@/apps/global-exchange/routes'
 import calcInvoicesRoutes from '@/apps/calc-invoices/routes'
+import lunarGardenRoutes from '@/apps/lunar-garden/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,7 @@ const router = createRouter({
     cartWiseRoutes,
     globalExchangeRoutes,
     calcInvoicesRoutes,
+    lunarGardenRoutes,
   ],
 })
 

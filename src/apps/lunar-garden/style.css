@@ -1,0 +1,6 @@
+/* Fondo de cielo nocturno para el calendario lunar, escopado a .app-lunar-garden. */
+.app-lunar-garden {
+  background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+  min-height: calc(100dvh - 2.75rem);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}

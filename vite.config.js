@@ -88,6 +88,12 @@ export default defineConfig({
             url: '/calc-invoices',
             icons: [{ src: 'pwa-192x192.svg', sizes: '192x192', type: 'image/svg+xml' }],
           },
+          {
+            name: 'Calendario Lunar',
+            short_name: 'Luna',
+            url: '/lunar-garden',
+            icons: [{ src: 'pwa-192x192.svg', sizes: '192x192', type: 'image/svg+xml' }],
+          },
         ],
       },
     }),
