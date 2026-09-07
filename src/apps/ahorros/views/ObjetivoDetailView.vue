@@ -1,10 +1,16 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { addGoalMovement, deleteGoal, getGoal, getGoalMovements } from '@/apps/ahorros/services/objetivos'
+import {
+  addGoalMovement,
+  deleteGoal,
+  getGoal,
+  getGoalMovements,
+  updateGoal,
+} from '@/apps/ahorros/services/objetivos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
 import ShareGoalPanel from '@/apps/ahorros/components/ShareGoalPanel.vue'
-import { formatMoney } from '@/apps/ahorros/utils/currency'
+import { CURRENCIES, formatMoney } from '@/apps/ahorros/utils/currency'
 import { computeGoalTotal, computePersonSubtotals, extractDistinctPersonas } from '@/apps/ahorros/utils/persons'
 import { formatDate } from '@/apps/ahorros/utils/dates'
 import { useAuthStore } from '@/stores/auth'
@@ -18,6 +24,13 @@ const goal = ref(null)
 const movements = ref([])
 const loading = ref(true)
 const serverError = ref('')
+
+const currencyOptions = Object.entries(CURRENCIES).map(([code, cfg]) => ({ code, ...cfg }))
+const editingGoal = ref(false)
+const editName = ref('')
+const editTargetAmount = ref(null)
+const editCurrency = ref('CRC')
+const editGoalError = ref('')
 
 const isOwner = computed(() => goal.value?.ownerId === authStore.user?.uid)
 const canEdit = computed(
@@ -56,22 +69,93 @@ async function handleDelete() {
   router.push({ name: 'ahorros-objetivos' })
 }
 
+function startEditGoal() {
+  editName.value = goal.value.name
+  editTargetAmount.value = goal.value.targetAmount
+  editCurrency.value = goal.value.currency
+  editGoalError.value = ''
+  editingGoal.value = true
+}
+
+function cancelEditGoal() {
+  editingGoal.value = false
+}
+
+async function saveEditGoal() {
+  editGoalError.value = ''
+  if (!editName.value.trim()) {
+    editGoalError.value = 'El nombre no puede estar vacío.'
+    return
+  }
+  try {
+    await updateGoal(goalId, {
+      name: editName.value.trim(),
+      targetAmount: editTargetAmount.value ? Number(editTargetAmount.value) : null,
+      currency: editCurrency.value,
+    })
+    editingGoal.value = false
+    await loadAll()
+  } catch (err) {
+    editGoalError.value = err.message
+  }
+}
+
 onMounted(loadAll)
 </script>
 
 <template>
   <div v-if="loading" class="text-muted">Cargando…</div>
   <template v-else-if="goal">
-    <div class="d-flex justify-content-between align-items-center mb-1">
+    <div v-if="editingGoal" class="card shadow-sm border-0 mb-3">
+      <div class="card-body">
+        <form class="row g-2 align-items-end" @submit.prevent="saveEditGoal">
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="goal-edit-name">Nombre</label>
+            <input id="goal-edit-name" v-model="editName" type="text" class="form-control" required />
+          </div>
+          <div class="col-6 col-sm-3">
+            <label class="form-label" for="goal-edit-target">Meta (opcional)</label>
+            <input
+              id="goal-edit-target"
+              v-model="editTargetAmount"
+              type="number"
+              step="0.01"
+              min="0"
+              class="form-control"
+            />
+          </div>
+          <div class="col-6 col-sm-3">
+            <label class="form-label" for="goal-edit-currency">Moneda</label>
+            <select id="goal-edit-currency" v-model="editCurrency" class="form-select">
+              <option v-for="c in currencyOptions" :key="c.code" :value="c.code">{{ c.code }}</option>
+            </select>
+          </div>
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="cancelEditGoal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-sm btn-success">Guardar</button>
+          </div>
+          <div v-if="editGoalError" class="col-12">
+            <div class="alert alert-danger py-2 mb-0">{{ editGoalError }}</div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div v-else class="d-flex justify-content-between align-items-center mb-1">
       <h1 class="h4 mb-0"><i class="bi bi-flag-fill me-2"></i>{{ goal.name }}</h1>
-      <button
-        v-if="isOwner"
-        class="btn btn-sm btn-outline-danger"
-        title="Eliminar objetivo"
-        @click="handleDelete"
-      >
-        <i class="bi bi-trash"></i>
-      </button>
+      <div v-if="isOwner" class="d-flex gap-2">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          title="Editar objetivo"
+          @click="startEditGoal"
+        >
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" title="Eliminar objetivo" @click="handleDelete">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
     </div>
 
     <div class="card shadow-sm border-0 mb-4">
