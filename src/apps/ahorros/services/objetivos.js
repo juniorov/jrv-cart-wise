@@ -13,6 +13,7 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
@@ -68,7 +69,19 @@ export async function updateGoal(goalId, { name, targetAmount, currency }) {
   await updateDoc(doc(db, 'ahorros_goals', goalId), { name, targetAmount, currency })
 }
 
+/** Elimina el objetivo y todo su historial de movimientos (solo el dueño puede hacerlo). */
 export async function deleteGoal(goalId) {
+  const movementsRef = collection(db, 'ahorros_goals', goalId, 'movements')
+  const movementsSnapshot = await getDocs(movementsRef)
+
+  // writeBatch admite máximo 500 operaciones; se parte en lotes por si el historial crece mucho.
+  const docs = movementsSnapshot.docs
+  for (let i = 0; i < docs.length; i += 499) {
+    const batch = writeBatch(db)
+    docs.slice(i, i + 499).forEach((d) => batch.delete(d.ref))
+    await batch.commit()
+  }
+
   await deleteDoc(doc(db, 'ahorros_goals', goalId))
 }
 

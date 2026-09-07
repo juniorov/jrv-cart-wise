@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { addGoalMovement, getGoal, getGoalMovements } from '@/apps/ahorros/services/objetivos'
+import { useRoute, useRouter } from 'vue-router'
+import { addGoalMovement, deleteGoal, getGoal, getGoalMovements } from '@/apps/ahorros/services/objetivos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
 import ShareGoalPanel from '@/apps/ahorros/components/ShareGoalPanel.vue'
 import { formatMoney } from '@/apps/ahorros/utils/currency'
@@ -9,6 +9,7 @@ import { computeGoalTotal, computePersonSubtotals, extractDistinctPersonas } fro
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const goalId = route.params.id
 
@@ -48,6 +49,12 @@ async function handleSubmit(payload) {
   }
 }
 
+async function handleDelete() {
+  if (!confirm(`¿Eliminar el objetivo "${goal.value.name}" y todo su historial de aportes?`)) return
+  await deleteGoal(goalId)
+  router.push({ name: 'ahorros-objetivos' })
+}
+
 function formatDate(value) {
   const d = value?.toDate ? value.toDate() : new Date(value)
   return d.toLocaleDateString('es-CR')
@@ -59,7 +66,17 @@ onMounted(loadAll)
 <template>
   <div v-if="loading" class="text-muted">Cargando…</div>
   <template v-else-if="goal">
-    <h1 class="h4 mb-1"><i class="bi bi-flag-fill me-2"></i>{{ goal.name }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <h1 class="h4 mb-0"><i class="bi bi-flag-fill me-2"></i>{{ goal.name }}</h1>
+      <button
+        v-if="isOwner"
+        class="btn btn-sm btn-outline-danger"
+        title="Eliminar objetivo"
+        @click="handleDelete"
+      >
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
 
     <div class="card shadow-sm border-0 mb-4">
       <div class="card-body text-center">
