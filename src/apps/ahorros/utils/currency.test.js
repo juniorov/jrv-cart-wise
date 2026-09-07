@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { formatMoney, convertToBase } from './currency'
 
 describe('formatMoney', () => {
-  it('formatea colones con el formato de Costa Rica', () => {
-    expect(formatMoney(1000, 'CRC')).toContain('₡')
+  it('formatea colones con símbolo ₡, coma de miles y punto decimal', () => {
+    expect(formatMoney(1234567.5, 'CRC')).toBe('₡1,234,567.50')
+  })
+
+  it('formatea dólares con símbolo $, coma de miles y punto decimal', () => {
+    expect(formatMoney(1234567.5, 'USD')).toBe('$1,234,567.50')
   })
 
   it('formatea dólares con el formato de Estados Unidos', () => {
