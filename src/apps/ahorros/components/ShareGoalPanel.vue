@@ -46,18 +46,18 @@ async function handleRemove(uid) {
       </p>
 
       <form class="row g-2 align-items-end mb-3" @submit.prevent="handleInvite">
-        <div class="col-7">
+        <div class="col-12 col-sm-7">
           <label class="form-label" for="invite-email">Email</label>
           <input id="invite-email" v-model="email" type="email" class="form-control" required />
         </div>
-        <div class="col-3">
+        <div class="col-6 col-sm-3">
           <label class="form-label" for="invite-role">Rol</label>
           <select id="invite-role" v-model="role" class="form-select">
             <option value="editor">Puede editar</option>
             <option value="viewer">Solo ver</option>
           </select>
         </div>
-        <div class="col-2">
+        <div class="col-6 col-sm-2">
           <button type="submit" class="btn btn-primary w-100" :disabled="submitting">Invitar</button>
         </div>
       </form>

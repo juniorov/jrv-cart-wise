@@ -70,13 +70,13 @@ onMounted(loadAll)
             </option>
           </select>
         </div>
-        <div class="col-4 col-sm-2">
+        <div class="col-6 col-sm-2">
           <label class="form-label" for="account-currency">Moneda</label>
           <select id="account-currency" v-model="currency" class="form-select">
             <option v-for="c in currencyOptions" :key="c.code" :value="c.code">{{ c.code }}</option>
           </select>
         </div>
-        <div class="col-2 col-sm-2">
+        <div class="col-12 col-sm-2">
           <button type="submit" class="btn btn-primary w-100">Agregar</button>
         </div>
       </form>

@@ -76,13 +76,13 @@ onMounted(loadGoals)
           <label class="form-label" for="goal-target">Meta (opcional)</label>
           <input id="goal-target" v-model="targetAmount" type="number" step="0.01" min="0" class="form-control" />
         </div>
-        <div class="col-4 col-sm-2">
+        <div class="col-6 col-sm-2">
           <label class="form-label" for="goal-currency">Moneda</label>
           <select id="goal-currency" v-model="currency" class="form-select">
             <option v-for="c in currencyOptions" :key="c.code" :value="c.code">{{ c.code }}</option>
           </select>
         </div>
-        <div class="col-2 col-sm-2">
+        <div class="col-12 col-sm-2">
           <button type="submit" class="btn btn-primary w-100">Crear</button>
         </div>
       </form>
