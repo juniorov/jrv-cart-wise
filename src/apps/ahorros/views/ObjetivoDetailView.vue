@@ -6,12 +6,14 @@ import {
   deleteGoal,
   getGoal,
   getGoalMovements,
+  setPersonTargets,
   updateGoal,
 } from '@/apps/ahorros/services/objetivos'
 import { getAccounts } from '@/apps/ahorros/services/cuentas'
 import { getEntities } from '@/apps/ahorros/services/entidades'
 import { materializeGoalMovement } from '@/apps/ahorros/services/movimientos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
+import PersonaAutocomplete from '@/apps/ahorros/components/PersonaAutocomplete.vue'
 import ShareGoalPanel from '@/apps/ahorros/components/ShareGoalPanel.vue'
 import { CURRENCIES, formatMoney } from '@/apps/ahorros/utils/currency'
 import { computeGoalTotal, computePersonSubtotals, extractDistinctPersonas } from '@/apps/ahorros/utils/persons'
@@ -42,6 +44,13 @@ const editTargetAmount = ref(null)
 const editCurrency = ref('CRC')
 const editGoalError = ref('')
 
+const editingPersonTarget = ref(null)
+const personTargetAmount = ref(null)
+const personTargetError = ref('')
+const newPersonName = ref('')
+const newPersonTarget = ref(null)
+const newPersonError = ref('')
+
 const entityById = computed(() => Object.fromEntries(entities.value.map((e) => [e.id, e])))
 
 const isOwner = computed(() => goal.value?.ownerId === authStore.user?.uid)
@@ -55,6 +64,20 @@ const personaSuggestions = computed(() => extractDistinctPersonas(movements.valu
 const progressPct = computed(() => {
   if (!goal.value?.targetAmount) return null
   return Math.min(100, Math.round((total.value / goal.value.targetAmount) * 100))
+})
+
+const personEntries = computed(() => {
+  const targets = goal.value?.personTargets ?? {}
+  const subtotals = new Map(personSubtotals.value.map((e) => [e.persona, e.total]))
+  const names = new Set([...subtotals.keys(), ...Object.keys(targets)])
+  return [...names]
+    .map((persona) => {
+      const total = subtotals.get(persona) ?? 0
+      const target = targets[persona] ?? null
+      const progressPct = target ? Math.min(100, Math.round((total / target) * 100)) : null
+      return { persona, total, target, progressPct }
+    })
+    .sort((a, b) => a.persona.localeCompare(b.persona))
 })
 
 async function loadAll() {
@@ -116,6 +139,62 @@ async function saveEditGoal() {
     await loadAll()
   } catch (err) {
     editGoalError.value = err.message
+  }
+}
+
+function startEditPersonTarget(entry) {
+  editingPersonTarget.value = entry.persona
+  personTargetAmount.value = entry.target
+  personTargetError.value = ''
+}
+
+function cancelEditPersonTarget() {
+  editingPersonTarget.value = null
+}
+
+async function savePersonTarget(persona) {
+  personTargetError.value = ''
+  const amount = Number(personTargetAmount.value)
+  if (!personTargetAmount.value || amount <= 0) {
+    personTargetError.value = 'Ingresa un monto mayor a 0.'
+    return
+  }
+  try {
+    await setPersonTargets(goalId, { ...(goal.value.personTargets ?? {}), [persona]: amount })
+    editingPersonTarget.value = null
+    await loadAll()
+  } catch (err) {
+    personTargetError.value = err.message
+  }
+}
+
+async function removePersonTarget(persona) {
+  const targets = { ...(goal.value.personTargets ?? {}) }
+  delete targets[persona]
+  await setPersonTargets(goalId, targets)
+  editingPersonTarget.value = null
+  await loadAll()
+}
+
+async function addPersonTarget() {
+  newPersonError.value = ''
+  const name = newPersonName.value.trim()
+  const amount = Number(newPersonTarget.value)
+  if (!name) {
+    newPersonError.value = 'Ingresa un nombre.'
+    return
+  }
+  if (!newPersonTarget.value || amount <= 0) {
+    newPersonError.value = 'Ingresa un monto mayor a 0.'
+    return
+  }
+  try {
+    await setPersonTargets(goalId, { ...(goal.value.personTargets ?? {}), [name]: amount })
+    newPersonName.value = ''
+    newPersonTarget.value = null
+    await loadAll()
+  } catch (err) {
+    newPersonError.value = err.message
   }
 }
 
@@ -221,19 +300,114 @@ onMounted(loadAll)
       </div>
     </div>
 
-    <div v-if="personSubtotals.length > 0" class="card shadow-sm border-0 mb-4">
+    <div v-if="personEntries.length > 0 || isOwner" class="card shadow-sm border-0 mb-4">
       <div class="card-body">
         <h2 class="h6 mb-3">Aportes por persona</h2>
-        <ul class="list-group list-group-flush">
-          <li
-            v-for="entry in personSubtotals"
-            :key="entry.persona"
-            class="list-group-item d-flex justify-content-between px-0"
-          >
-            <span>{{ entry.persona }}</span>
-            <span class="fw-semibold">{{ formatMoney(entry.total, goal.currency) }}</span>
+        <ul v-if="personEntries.length > 0" class="list-group list-group-flush mb-3">
+          <li v-for="entry in personEntries" :key="entry.persona" class="list-group-item px-0">
+            <div v-if="editingPersonTarget === entry.persona" class="row g-2 align-items-end">
+              <div class="col-12 fw-semibold">{{ entry.persona }}</div>
+              <div class="col-6">
+                <input
+                  v-model="personTargetAmount"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="form-control form-control-sm"
+                  placeholder="Meta individual"
+                />
+              </div>
+              <div class="col-6 d-flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success"
+                  @click="savePersonTarget(entry.persona)"
+                >
+                  Guardar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  @click="cancelEditPersonTarget"
+                >
+                  Cancelar
+                </button>
+                <button
+                  v-if="entry.target"
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  title="Quitar meta individual"
+                  @click="removePersonTarget(entry.persona)"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              <div v-if="personTargetError" class="col-12">
+                <div class="alert alert-danger py-2 mb-0">{{ personTargetError }}</div>
+              </div>
+            </div>
+            <div v-else class="d-flex justify-content-between align-items-start gap-2">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center gap-2">
+                  <span>{{ entry.persona }}</span>
+                  <i
+                    v-if="entry.progressPct >= 100"
+                    class="bi bi-check-circle-fill text-success"
+                    title="Meta individual completa"
+                  ></i>
+                </div>
+                <template v-if="entry.target">
+                  <div class="d-flex justify-content-between text-muted small mt-1">
+                    <span>
+                      {{ formatMoney(entry.total, goal.currency) }} de
+                      {{ formatMoney(entry.target, goal.currency) }}
+                    </span>
+                    <span class="fw-semibold">{{ entry.progressPct }}%</span>
+                  </div>
+                  <div class="progress mt-1" style="height: 0.4rem">
+                    <div class="progress-bar" :style="{ width: entry.progressPct + '%' }"></div>
+                  </div>
+                </template>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span v-if="!entry.target" class="fw-semibold">
+                  {{ formatMoney(entry.total, goal.currency) }}
+                </span>
+                <button
+                  v-if="isOwner"
+                  class="btn btn-sm btn-outline-secondary"
+                  title="Editar meta individual"
+                  @click="startEditPersonTarget(entry)"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            </div>
           </li>
         </ul>
+
+        <form v-if="isOwner" class="row g-2 align-items-end" @submit.prevent="addPersonTarget">
+          <div class="col-12 col-sm-6">
+            <label class="form-label small mb-1">Persona</label>
+            <PersonaAutocomplete v-model="newPersonName" :suggestions="personaSuggestions" />
+          </div>
+          <div class="col-8 col-sm-4">
+            <label class="form-label small mb-1">Meta individual</label>
+            <input
+              v-model="newPersonTarget"
+              type="number"
+              step="0.01"
+              min="0"
+              class="form-control"
+            />
+          </div>
+          <div class="col-4 col-sm-2">
+            <button type="submit" class="btn btn-outline-primary w-100">Agregar</button>
+          </div>
+          <div v-if="newPersonError" class="col-12">
+            <div class="alert alert-danger py-2 mb-0">{{ newPersonError }}</div>
+          </div>
+        </form>
       </div>
     </div>
 

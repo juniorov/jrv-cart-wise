@@ -69,6 +69,15 @@ export async function updateGoal(goalId, { name, targetAmount, currency }) {
   await updateDoc(doc(db, 'ahorros_goals', goalId), { name, targetAmount, currency })
 }
 
+/**
+ * Reemplaza el mapa completo de metas individuales por persona. Se reemplaza entero (en vez de
+ * usar field-path dinámico tipo `personTargets.${persona}`) porque un nombre de persona con un
+ * punto rompería ese path al anidarse como sub-mapa en Firestore.
+ */
+export async function setPersonTargets(goalId, personTargets) {
+  await updateDoc(doc(db, 'ahorros_goals', goalId), { personTargets })
+}
+
 /** Elimina el objetivo y todo su historial de movimientos (solo el dueño puede hacerlo). */
 export async function deleteGoal(goalId) {
   const movementsRef = collection(db, 'ahorros_goals', goalId, 'movements')
