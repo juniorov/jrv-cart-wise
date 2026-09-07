@@ -9,6 +9,7 @@ import {
   updateGoal,
 } from '@/apps/ahorros/services/objetivos'
 import { getAccounts } from '@/apps/ahorros/services/cuentas'
+import { getEntities } from '@/apps/ahorros/services/entidades'
 import { materializeGoalMovement } from '@/apps/ahorros/services/movimientos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
 import ShareGoalPanel from '@/apps/ahorros/components/ShareGoalPanel.vue'
@@ -25,6 +26,7 @@ const goalId = route.params.id
 const goal = ref(null)
 const movements = ref([])
 const accounts = ref([])
+const entities = ref([])
 const loading = ref(true)
 const serverError = ref('')
 
@@ -39,6 +41,8 @@ const editName = ref('')
 const editTargetAmount = ref(null)
 const editCurrency = ref('CRC')
 const editGoalError = ref('')
+
+const entityById = computed(() => Object.fromEntries(entities.value.map((e) => [e.id, e])))
 
 const isOwner = computed(() => goal.value?.ownerId === authStore.user?.uid)
 const canEdit = computed(
@@ -55,14 +59,16 @@ const progressPct = computed(() => {
 
 async function loadAll() {
   loading.value = true
-  const [goalResult, movementsResult, accountsResult] = await Promise.all([
+  const [goalResult, movementsResult, accountsResult, entitiesResult] = await Promise.all([
     getGoal(goalId),
     getGoalMovements(goalId),
     getAccounts(),
+    getEntities(),
   ])
   goal.value = goalResult
   movements.value = movementsResult
   accounts.value = accountsResult
+  entities.value = entitiesResult
   loading.value = false
 }
 
@@ -289,7 +295,7 @@ onMounted(loadAll)
               <label class="form-label">Cuenta</label>
               <select v-model="materializeAccountId" class="form-select" required>
                 <option v-for="account in accounts" :key="account.id" :value="account.id">
-                  {{ account.name }} ({{ account.currency }})
+                  {{ entityById[account.entityId]?.name ?? '—' }} - {{ account.name }} ({{ account.currency }})
                 </option>
               </select>
             </div>
