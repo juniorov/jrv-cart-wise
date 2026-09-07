@@ -1,11 +1,13 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   orderBy,
   query,
   runTransaction,
   serverTimestamp,
+  updateDoc,
   writeBatch,
 } from 'firebase/firestore'
 import { db } from '@/firebase'
@@ -39,6 +41,7 @@ export async function addAccountMovement(
   const uid = currentUid()
   const accountRef = doc(db, 'ahorros_accounts', accountId)
   const movementRef = doc(collection(accountRef, 'movements'))
+  const goalMovementRef = goalId ? doc(collection(db, 'ahorros_goals', goalId, 'movements')) : null
   const delta = type === 'ingreso' ? amount : -amount
 
   await runTransaction(db, async (tx) => {
@@ -56,12 +59,13 @@ export async function addAccountMovement(
       date,
       goalId,
       persona,
+      // Referencia al movimiento espejo del objetivo, para poder editarlo/borrarlo en conjunto.
+      goalMovementId: goalId ? goalMovementRef?.id ?? null : null,
       createdAt: serverTimestamp(),
     })
   })
 
   if (goalId) {
-    const goalMovementRef = doc(collection(db, 'ahorros_goals', goalId, 'movements'))
     const batch = writeBatch(db)
     batch.set(goalMovementRef, {
       type,
@@ -77,4 +81,85 @@ export async function addAccountMovement(
   }
 
   return movementRef.id
+}
+
+/**
+ * Edita un movimiento de cuenta ya registrado, recalculando el saldo de la cuenta de forma
+ * atómica (se revierte el efecto del monto/tipo anterior y se aplica el nuevo). El objetivo al
+ * que estaba vinculado (si aplica) no se puede cambiar desde aquí, solo el monto/tipo/fecha/
+ * descripción/persona; si el movimiento tiene un espejo en un objetivo, se actualiza también.
+ */
+export async function updateAccountMovement(
+  accountId,
+  movementId,
+  { type, amount, description, date, persona = null, allowOverdraft = false },
+) {
+  const accountRef = doc(db, 'ahorros_accounts', accountId)
+  const movementRef = doc(accountRef, 'movements', movementId)
+  let goalId = null
+  let goalMovementId = null
+
+  await runTransaction(db, async (tx) => {
+    const accountSnap = await tx.get(accountRef)
+    const movementSnap = await tx.get(movementRef)
+    if (!accountSnap.exists()) throw new Error('La cuenta no existe')
+    if (!movementSnap.exists()) throw new Error('El movimiento no existe')
+
+    const oldMovement = movementSnap.data()
+    const oldDelta = oldMovement.type === 'ingreso' ? oldMovement.amount : -oldMovement.amount
+    const newDelta = type === 'ingreso' ? amount : -amount
+    const newBalance = (accountSnap.data().balance ?? 0) - oldDelta + newDelta
+    if (newBalance < 0 && !allowOverdraft) {
+      throw new Error('El cambio deja la cuenta en negativo. Marca "permitir descubierto" si es intencional.')
+    }
+
+    goalId = oldMovement.goalId ?? null
+    goalMovementId = oldMovement.goalMovementId ?? null
+
+    tx.update(accountRef, { balance: newBalance })
+    tx.update(movementRef, {
+      type,
+      amount,
+      description,
+      date,
+      persona: goalId ? persona : null,
+    })
+  })
+
+  if (goalId && goalMovementId) {
+    await updateDoc(doc(db, 'ahorros_goals', goalId, 'movements', goalMovementId), {
+      type,
+      amount,
+      description,
+      date,
+      persona,
+    })
+  }
+}
+
+/** Elimina un movimiento de cuenta, revirtiendo su efecto en el saldo y en el objetivo vinculado. */
+export async function deleteAccountMovement(accountId, movementId) {
+  const accountRef = doc(db, 'ahorros_accounts', accountId)
+  const movementRef = doc(accountRef, 'movements', movementId)
+  let goalId = null
+  let goalMovementId = null
+
+  await runTransaction(db, async (tx) => {
+    const accountSnap = await tx.get(accountRef)
+    const movementSnap = await tx.get(movementRef)
+    if (!accountSnap.exists()) throw new Error('La cuenta no existe')
+    if (!movementSnap.exists()) return
+
+    const oldMovement = movementSnap.data()
+    const oldDelta = oldMovement.type === 'ingreso' ? oldMovement.amount : -oldMovement.amount
+    goalId = oldMovement.goalId ?? null
+    goalMovementId = oldMovement.goalMovementId ?? null
+
+    tx.update(accountRef, { balance: (accountSnap.data().balance ?? 0) - oldDelta })
+    tx.delete(movementRef)
+  })
+
+  if (goalId && goalMovementId) {
+    await deleteDoc(doc(db, 'ahorros_goals', goalId, 'movements', goalMovementId))
+  }
 }
