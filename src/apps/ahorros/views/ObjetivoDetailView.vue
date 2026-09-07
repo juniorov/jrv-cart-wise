@@ -6,6 +6,7 @@ import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
 import ShareGoalPanel from '@/apps/ahorros/components/ShareGoalPanel.vue'
 import { formatMoney } from '@/apps/ahorros/utils/currency'
 import { computeGoalTotal, computePersonSubtotals, extractDistinctPersonas } from '@/apps/ahorros/utils/persons'
+import { formatDate } from '@/apps/ahorros/utils/dates'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
@@ -53,11 +54,6 @@ async function handleDelete() {
   if (!confirm(`¿Eliminar el objetivo "${goal.value.name}" y todo su historial de aportes?`)) return
   await deleteGoal(goalId)
   router.push({ name: 'ahorros-objetivos' })
-}
-
-function formatDate(value) {
-  const d = value?.toDate ? value.toDate() : new Date(value)
-  return d.toLocaleDateString('es-CR')
 }
 
 onMounted(loadAll)

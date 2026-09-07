@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import PersonaAutocomplete from '@/apps/ahorros/components/PersonaAutocomplete.vue'
+import { parseDateInput, todayInputValue } from '@/apps/ahorros/utils/dates'
 
 const props = defineProps({
   goals: { type: Array, default: () => [] },
@@ -17,7 +18,7 @@ const emit = defineEmits(['submit', 'goal-change'])
 const type = ref('ingreso')
 const amount = ref(null)
 const description = ref('')
-const date = ref(new Date().toISOString().slice(0, 10))
+const date = ref(todayInputValue())
 const goalId = ref('')
 const persona = ref('')
 const allowOverdraft = ref(false)
@@ -38,7 +39,7 @@ function handleSubmit() {
     type: type.value,
     amount: Number(amount.value),
     description: description.value.trim(),
-    date: new Date(date.value),
+    date: parseDateInput(date.value),
     goalId: goalId.value || null,
     persona: goalId.value || props.showPersona ? persona.value.trim() || null : null,
     allowOverdraft: allowOverdraft.value,
