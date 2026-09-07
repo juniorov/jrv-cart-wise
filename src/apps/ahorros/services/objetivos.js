@@ -1,0 +1,137 @@
+import {
+  collection,
+  deleteDoc,
+  deleteField,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore'
+import { db } from '@/firebase'
+import { useAuthStore } from '@/stores/auth'
+import { resolveUidByEmail } from '@/apps/ahorros/services/userLookup'
+
+const goalsRef = collection(db, 'ahorros_goals')
+
+function currentUid() {
+  const uid = useAuthStore().user?.uid
+  if (!uid) throw new Error('No hay sesión activa')
+  return uid
+}
+
+function currentEmail() {
+  const email = useAuthStore().user?.email
+  if (!email) throw new Error('No hay sesión activa')
+  return email.toLowerCase()
+}
+
+// Se ordena en cliente para no requerir un índice compuesto de Firestore.
+export async function getGoals() {
+  const uid = currentUid()
+  const snapshot = await getDocs(query(goalsRef, where('ownerId', '==', uid)))
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function getGoal(goalId) {
+  const snapshot = await getDoc(doc(db, 'ahorros_goals', goalId))
+  return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null
+}
+
+export async function createGoal({ name, targetAmount = null, currency }) {
+  const uid = currentUid()
+  const docRef = doc(goalsRef)
+  await setDoc(docRef, {
+    ownerId: uid,
+    name,
+    targetAmount,
+    currency,
+    sharedWith: {},
+    pendingInvites: {},
+    createdAt: serverTimestamp(),
+  })
+  return docRef.id
+}
+
+export async function updateGoal(goalId, { name, targetAmount, currency }) {
+  await updateDoc(doc(db, 'ahorros_goals', goalId), { name, targetAmount, currency })
+}
+
+export async function deleteGoal(goalId) {
+  await deleteDoc(doc(db, 'ahorros_goals', goalId))
+}
+
+export async function getGoalMovements(goalId) {
+  const movementsRef = collection(db, 'ahorros_goals', goalId, 'movements')
+  const snapshot = await getDocs(query(movementsRef, orderBy('date', 'desc')))
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+}
+
+/** Objetivos que otra persona compartió conmigo (ya aceptados, no privados del dueño). */
+export async function getSharedGoals() {
+  const uid = currentUid()
+  const snapshot = await getDocs(query(goalsRef, where(`sharedWith.${uid}`, '!=', null)))
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+}
+
+/** Invitaciones pendientes dirigidas a mi email, todavía no aceptadas. */
+export async function getPendingInvitesForMe() {
+  const email = currentEmail()
+  const snapshot = await getDocs(query(goalsRef, where(`pendingInvites.${email}`, '!=', null)))
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+}
+
+/**
+ * Invita a alguien a un objetivo por email. Si ya inició sesión al menos una vez en el suite,
+ * queda agregado directo a `sharedWith`; si no, la invitación queda pendiente y se auto-reclama
+ * la próxima vez que esa persona inicie sesión y revise sus invitaciones.
+ */
+export async function inviteToGoal(goalId, email, role = 'editor') {
+  const emailLower = email.trim().toLowerCase()
+  const uid = await resolveUidByEmail(emailLower)
+  if (uid) {
+    await updateDoc(doc(db, 'ahorros_goals', goalId), { [`sharedWith.${uid}`]: role })
+  } else {
+    await updateDoc(doc(db, 'ahorros_goals', goalId), { [`pendingInvites.${emailLower}`]: role })
+  }
+}
+
+/** El dueño quita acceso a un colaborador. */
+export async function removeCollaborator(goalId, uid) {
+  await updateDoc(doc(db, 'ahorros_goals', goalId), { [`sharedWith.${uid}`]: deleteField() })
+}
+
+/** El invitado acepta su propia invitación pendiente (permitido por la regla de auto-reclamo). */
+export async function claimInvite(goalId, role) {
+  const uid = currentUid()
+  const email = currentEmail()
+  await updateDoc(doc(db, 'ahorros_goals', goalId), {
+    [`sharedWith.${uid}`]: role,
+    [`pendingInvites.${email}`]: deleteField(),
+  })
+}
+
+/**
+ * Registra un aporte/retiro directo en el objetivo, sin pasar por ninguna cuenta bancaria
+ * (ej. plata en efectivo que aún no se ha depositado, o un aporte que registra un colaborador
+ * invitado que no tiene cuentas propias).
+ */
+export async function addGoalMovement(goalId, { type, amount, description, date, persona = null }) {
+  const uid = currentUid()
+  const movementRef = doc(collection(db, 'ahorros_goals', goalId, 'movements'))
+  await setDoc(movementRef, {
+    type,
+    amount,
+    description,
+    date,
+    persona,
+    accountId: null,
+    createdBy: uid,
+    createdAt: serverTimestamp(),
+  })
+  return movementRef.id
+}

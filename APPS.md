@@ -14,6 +14,7 @@ saber en qué carpeta trabajar:**
 | "calc-invoices", "calculadora de cobros", "las calculadoras" | `src/apps/calc-invoices/` | `/calc-invoices` (+ `/calc-invoices/hours`) | — (sin persistencia) | — | No |
 | "lunar-garden", "calendario lunar", "fases lunares", "cuándo sembrar" | `src/apps/lunar-garden/` | `/lunar-garden` (+ `/lunar-garden/calendario`) | — (cálculo matemático puro, sin datos) | — | No |
 | "spray-mix", "dosificador agrícola", "calculadora de mezclas", "la bomba de fumigar" | `src/apps/spray-mix/` | `/spray-mix` (+ `/spray-mix/productos`) | — (sin Firestore) | Prefijo `spray_mix_` (`spray_mix_products_v1`) | No |
+| "ahorros", "ahorro familiar", "metas de ahorro" | `src/apps/ahorros/` | `/ahorros` | Prefijo `ahorros_` (`ahorros_entities`, `ahorros_accounts`, `ahorros_goals`) + `users_by_email` (colección compartida entre apps) | — | Sí |
 
 ## Piezas compartidas del host
 

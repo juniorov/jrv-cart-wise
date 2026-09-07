@@ -100,6 +100,12 @@ export default defineConfig({
             url: '/spray-mix',
             icons: [{ src: 'pwa-192x192.svg', sizes: '192x192', type: 'image/svg+xml' }],
           },
+          {
+            name: 'Ahorros',
+            short_name: 'Ahorros',
+            url: '/ahorros',
+            icons: [{ src: 'pwa-192x192.svg', sizes: '192x192', type: 'image/svg+xml' }],
+          },
         ],
       },
     }),

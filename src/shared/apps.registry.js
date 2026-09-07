@@ -40,6 +40,15 @@ export const apps = [
     requiresAuth: false,
   },
   {
+    slug: 'ahorros',
+    name: 'Ahorros',
+    description: 'Metas de ahorro familiares con aportes por persona',
+    icon: 'bi-piggy-bank-fill',
+    color: '#d97706',
+    routeBase: '/ahorros',
+    requiresAuth: true,
+  },
+  {
     slug: 'spray-mix',
     name: 'Dosificador Agrícola',
     description: 'Calcula cuánto producto echar a la bomba según los litros de agua',
