@@ -1,16 +1,22 @@
 // Catálogo abierto de monedas: agregar una nueva no requiere tocar el resto del código.
 export const CURRENCIES = {
-  CRC: { symbol: '₡', locale: 'es-CR', name: 'Colones' },
-  USD: { symbol: '$', locale: 'en-US', name: 'Dólares' },
+  CRC: { symbol: '₡', name: 'Colones' },
+  USD: { symbol: '$', name: 'Dólares' },
 }
+
+// Se fuerza siempre el formato numérico "en-US" (miles con coma, decimales con punto) sin
+// importar la moneda, y se pide el símbolo (₡, $) en vez del código ISO (CRC, USD).
+const NUMBER_LOCALE = 'en-US'
 
 const formatterCache = new Map()
 
 function getFormatter(code) {
-  const cfg = CURRENCIES[code]
-  if (!cfg) throw new Error(`Moneda no soportada: ${code}`)
+  if (!CURRENCIES[code]) throw new Error(`Moneda no soportada: ${code}`)
   if (!formatterCache.has(code)) {
-    formatterCache.set(code, new Intl.NumberFormat(cfg.locale, { style: 'currency', currency: code }))
+    formatterCache.set(
+      code,
+      new Intl.NumberFormat(NUMBER_LOCALE, { style: 'currency', currency: code, currencyDisplay: 'narrowSymbol' }),
+    )
   }
   return formatterCache.get(code)
 }
