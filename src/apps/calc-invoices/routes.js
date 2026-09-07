@@ -13,5 +13,10 @@ export default {
       name: 'hours-calculator',
       component: () => import('@/apps/calc-invoices/views/HoursCalculator.vue'),
     },
+    {
+      path: 'tip',
+      name: 'tip-calculator',
+      component: () => import('@/apps/calc-invoices/views/TipCalculator.vue'),
+    },
   ],
 }

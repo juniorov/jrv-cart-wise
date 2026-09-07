@@ -11,6 +11,9 @@ import { RouterLink, RouterView } from 'vue-router'
       <RouterLink to="/calc-invoices/hours" class="calc-tab" active-class="active">
         ⏱️ Horas
       </RouterLink>
+      <RouterLink to="/calc-invoices/tip" class="calc-tab" active-class="active">
+        💵 Propina
+      </RouterLink>
     </div>
     <RouterView />
   </div>
