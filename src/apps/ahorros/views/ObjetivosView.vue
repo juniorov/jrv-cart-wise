@@ -5,11 +5,13 @@ import {
   claimInvite,
   createGoal,
   deleteGoal,
+  getGoalMovements,
   getGoals,
   getPendingInvitesForMe,
   getSharedGoals,
 } from '@/apps/ahorros/services/objetivos'
 import { CURRENCIES, formatMoney } from '@/apps/ahorros/utils/currency'
+import { computeGoalTotal } from '@/apps/ahorros/utils/persons'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
@@ -22,6 +24,19 @@ const targetAmount = ref(null)
 const currency = ref('CRC')
 const currencyOptions = Object.entries(CURRENCIES).map(([code, cfg]) => ({ code, ...cfg }))
 
+async function withProgress(goalList) {
+  return Promise.all(
+    goalList.map(async (goal) => {
+      const movements = await getGoalMovements(goal.id)
+      const total = computeGoalTotal(movements)
+      const progressPct = goal.targetAmount
+        ? Math.min(100, Math.round((total / goal.targetAmount) * 100))
+        : null
+      return { ...goal, total, progressPct }
+    }),
+  )
+}
+
 async function loadGoals() {
   loading.value = true
   const [own, shared, invites] = await Promise.all([
@@ -29,8 +44,12 @@ async function loadGoals() {
     getSharedGoals(),
     getPendingInvitesForMe(),
   ])
-  goals.value = own
-  sharedGoals.value = shared
+  const [ownWithProgress, sharedWithProgress] = await Promise.all([
+    withProgress(own),
+    withProgress(shared),
+  ])
+  goals.value = ownWithProgress
+  sharedGoals.value = sharedWithProgress
   pendingInvites.value = invites
   loading.value = false
 }
@@ -120,8 +139,17 @@ onMounted(loadGoals)
             class="text-decoration-none text-body flex-grow-1"
           >
             <div class="fw-semibold"><i class="bi bi-flag-fill me-2"></i>{{ goal.name }}</div>
-            <div v-if="goal.targetAmount" class="text-muted small">
-              Meta: {{ formatMoney(goal.targetAmount, goal.currency) }}
+            <template v-if="goal.targetAmount">
+              <div class="d-flex justify-content-between text-muted small mt-1">
+                <span>{{ formatMoney(goal.total, goal.currency) }} de {{ formatMoney(goal.targetAmount, goal.currency) }}</span>
+                <span class="fw-semibold">{{ goal.progressPct }}%</span>
+              </div>
+              <div class="progress mt-1" style="height: 0.4rem">
+                <div class="progress-bar" :style="{ width: goal.progressPct + '%' }"></div>
+              </div>
+            </template>
+            <div v-else class="text-muted small">
+              Acumulado: {{ formatMoney(goal.total, goal.currency) }}
             </div>
           </RouterLink>
           <button
@@ -140,8 +168,17 @@ onMounted(loadGoals)
           <li v-for="goal in sharedGoals" :key="goal.id" class="list-group-item">
             <RouterLink :to="`/ahorros/objetivos/${goal.id}`" class="text-decoration-none text-body">
               <div class="fw-semibold"><i class="bi bi-flag-fill me-2"></i>{{ goal.name }}</div>
-              <div v-if="goal.targetAmount" class="text-muted small">
-                Meta: {{ formatMoney(goal.targetAmount, goal.currency) }}
+              <template v-if="goal.targetAmount">
+                <div class="d-flex justify-content-between text-muted small mt-1">
+                  <span>{{ formatMoney(goal.total, goal.currency) }} de {{ formatMoney(goal.targetAmount, goal.currency) }}</span>
+                  <span class="fw-semibold">{{ goal.progressPct }}%</span>
+                </div>
+                <div class="progress mt-1" style="height: 0.4rem">
+                  <div class="progress-bar" :style="{ width: goal.progressPct + '%' }"></div>
+                </div>
+              </template>
+              <div v-else class="text-muted small">
+                Acumulado: {{ formatMoney(goal.total, goal.currency) }}
               </div>
             </RouterLink>
           </li>
