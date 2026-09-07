@@ -12,6 +12,7 @@ saber en qué carpeta trabajar:**
 | "cart-wise", "CartWise", "el comparador de precios" | `src/apps/cart-wise/` | `/cart-wise` | Prefijo `cartwise_` (`cartwise_businesses`, `cartwise_products`, `cartwise_settings`, `users/{uid}/cartwise_cart`) | — | Sí |
 | "global-exchange", "tipo de cambio", "el conversor" | `src/apps/global-exchange/` | `/global-exchange` | — (no usa Firestore) | Prefijo `global_exchange_` (`global_exchange_er_cache_v2`, `global_exchange_converter_prefs_v1`) | No |
 | "calc-invoices", "calculadora de cobros", "las calculadoras" | `src/apps/calc-invoices/` | `/calc-invoices` (+ `/calc-invoices/hours`) | — (sin persistencia) | — | No |
+| "lunar-garden", "calendario lunar", "fases lunares", "cuándo sembrar" | `src/apps/lunar-garden/` | `/lunar-garden` (+ `/lunar-garden/calendario`) | — (cálculo matemático puro, sin datos) | — | No |
 
 ## Piezas compartidas del host
 

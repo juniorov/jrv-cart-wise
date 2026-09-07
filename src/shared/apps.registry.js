@@ -30,4 +30,13 @@ export const apps = [
     routeBase: '/calc-invoices',
     requiresAuth: false,
   },
+  {
+    slug: 'lunar-garden',
+    name: 'Calendario Lunar',
+    description: 'Cuándo sembrar, podar, fertilizar y fumigar según la fase lunar',
+    icon: 'bi-moon-stars-fill',
+    color: '#6366f1',
+    routeBase: '/lunar-garden',
+    requiresAuth: false,
+  },
 ]
