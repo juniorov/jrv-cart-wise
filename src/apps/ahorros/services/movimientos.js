@@ -141,6 +141,48 @@ export async function updateAccountMovement(
   await batch.commit()
 }
 
+/**
+ * "Materializa" un aporte que se había registrado directo en un objetivo (sin cuenta, ej. plata
+ * en efectivo) convirtiéndolo en un movimiento real de la cuenta elegida, sin duplicarlo: no
+ * crea un movimiento nuevo en el objetivo, sino que vincula (`accountId`) el mismo documento que
+ * ya existía. Solo aplica a movimientos de objetivo que todavía no tengan `accountId`.
+ */
+export async function materializeGoalMovement(goalId, goalMovementId, accountId, allowOverdraft = false) {
+  const goalMovementRef = doc(db, 'ahorros_goals', goalId, 'movements', goalMovementId)
+  const accountRef = doc(db, 'ahorros_accounts', accountId)
+  const accountMovementRef = doc(collection(accountRef, 'movements'))
+
+  const [goalMovementSnap, accountSnap] = await Promise.all([getDoc(goalMovementRef), getDoc(accountRef)])
+  if (!goalMovementSnap.exists()) throw new Error('El movimiento no existe')
+  if (!accountSnap.exists()) throw new Error('La cuenta no existe')
+
+  const goalMovement = goalMovementSnap.data()
+  if (goalMovement.accountId) throw new Error('Este movimiento ya está vinculado a una cuenta')
+
+  const delta = goalMovement.type === 'ingreso' ? goalMovement.amount : -goalMovement.amount
+  const currentBalance = accountSnap.data().balance ?? 0
+  if (currentBalance + delta < 0 && !allowOverdraft) {
+    throw new Error('Esto deja la cuenta en negativo. Marca "permitir descubierto" si es intencional.')
+  }
+
+  const batch = writeBatch(db)
+  batch.update(accountRef, { balance: increment(delta) })
+  batch.set(accountMovementRef, {
+    type: goalMovement.type,
+    amount: goalMovement.amount,
+    description: goalMovement.description ?? '',
+    date: goalMovement.date,
+    goalId,
+    persona: goalMovement.persona ?? null,
+    goalMovementId,
+    createdAt: serverTimestamp(),
+  })
+  batch.update(goalMovementRef, { accountId })
+  await batch.commit()
+
+  return accountMovementRef.id
+}
+
 /** Elimina un movimiento de cuenta, revirtiendo su efecto en el saldo y en el objetivo vinculado. */
 export async function deleteAccountMovement(accountId, movementId) {
   const accountRef = doc(db, 'ahorros_accounts', accountId)
