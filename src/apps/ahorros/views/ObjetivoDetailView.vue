@@ -8,6 +8,8 @@ import {
   getGoalMovements,
   updateGoal,
 } from '@/apps/ahorros/services/objetivos'
+import { getAccounts } from '@/apps/ahorros/services/cuentas'
+import { materializeGoalMovement } from '@/apps/ahorros/services/movimientos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
 import ShareGoalPanel from '@/apps/ahorros/components/ShareGoalPanel.vue'
 import { CURRENCIES, formatMoney } from '@/apps/ahorros/utils/currency'
@@ -22,8 +24,14 @@ const goalId = route.params.id
 
 const goal = ref(null)
 const movements = ref([])
+const accounts = ref([])
 const loading = ref(true)
 const serverError = ref('')
+
+const materializingId = ref(null)
+const materializeAccountId = ref('')
+const materializeAllowOverdraft = ref(false)
+const materializeError = ref('')
 
 const currencyOptions = Object.entries(CURRENCIES).map(([code, cfg]) => ({ code, ...cfg }))
 const editingGoal = ref(false)
@@ -47,9 +55,14 @@ const progressPct = computed(() => {
 
 async function loadAll() {
   loading.value = true
-  const [goalResult, movementsResult] = await Promise.all([getGoal(goalId), getGoalMovements(goalId)])
+  const [goalResult, movementsResult, accountsResult] = await Promise.all([
+    getGoal(goalId),
+    getGoalMovements(goalId),
+    getAccounts(),
+  ])
   goal.value = goalResult
   movements.value = movementsResult
+  accounts.value = accountsResult
   loading.value = false
 }
 
@@ -97,6 +110,37 @@ async function saveEditGoal() {
     await loadAll()
   } catch (err) {
     editGoalError.value = err.message
+  }
+}
+
+function startMaterialize(movement) {
+  materializingId.value = movement.id
+  materializeAccountId.value = accounts.value[0]?.id ?? ''
+  materializeAllowOverdraft.value = false
+  materializeError.value = ''
+}
+
+function cancelMaterialize() {
+  materializingId.value = null
+}
+
+async function confirmMaterialize(movement) {
+  materializeError.value = ''
+  if (!materializeAccountId.value) {
+    materializeError.value = 'Selecciona una cuenta.'
+    return
+  }
+  try {
+    await materializeGoalMovement(
+      goalId,
+      movement.id,
+      materializeAccountId.value,
+      materializeAllowOverdraft.value,
+    )
+    materializingId.value = null
+    await loadAll()
+  } catch (err) {
+    materializeError.value = err.message
   }
 }
 
@@ -205,26 +249,71 @@ onMounted(loadAll)
     <h2 class="h6 mb-2">Historial</h2>
     <div v-if="movements.length === 0" class="text-muted">Aún no hay movimientos.</div>
     <ul v-else class="list-group">
-      <li
-        v-for="movement in movements"
-        :key="movement.id"
-        class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2"
-      >
-        <div>
+      <li v-for="movement in movements" :key="movement.id" class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div>
-            <span
-              class="badge me-2"
-              :class="movement.type === 'ingreso' ? 'text-bg-success' : 'text-bg-danger'"
-            >
-              {{ movement.type === 'ingreso' ? 'Ingreso' : 'Egreso' }}
-            </span>
-            <span v-if="movement.persona" class="fw-semibold">{{ movement.persona }}</span>
-            <span v-if="movement.description" class="text-muted"> — {{ movement.description }}</span>
+            <div>
+              <span
+                class="badge me-2"
+                :class="movement.type === 'ingreso' ? 'text-bg-success' : 'text-bg-danger'"
+              >
+                {{ movement.type === 'ingreso' ? 'Ingreso' : 'Egreso' }}
+              </span>
+              <span v-if="movement.persona" class="fw-semibold">{{ movement.persona }}</span>
+              <span v-if="movement.description" class="text-muted"> — {{ movement.description }}</span>
+            </div>
+            <div class="text-muted small">{{ formatDate(movement.date) }}</div>
           </div>
-          <div class="text-muted small">{{ formatDate(movement.date) }}</div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="fw-semibold" :class="movement.type === 'ingreso' ? 'text-success' : 'text-danger'">
+              {{ movement.type === 'ingreso' ? '+' : '-' }}{{ formatMoney(movement.amount, goal.currency) }}
+            </div>
+            <button
+              v-if="isOwner && !movement.accountId && accounts.length > 0"
+              class="btn btn-sm btn-outline-secondary"
+              title="Materializar en una cuenta"
+              @click="startMaterialize(movement)"
+            >
+              <i class="bi bi-bank2"></i>
+            </button>
+          </div>
         </div>
-        <div class="fw-semibold" :class="movement.type === 'ingreso' ? 'text-success' : 'text-danger'">
-          {{ movement.type === 'ingreso' ? '+' : '-' }}{{ formatMoney(movement.amount, goal.currency) }}
+
+        <div v-if="materializingId === movement.id" class="mt-2 pt-2 border-top">
+          <p class="text-muted small mb-2">
+            Convierte este aporte en un movimiento real de la cuenta elegida (no se duplica en el
+            objetivo).
+          </p>
+          <form class="row g-2 align-items-end" @submit.prevent="confirmMaterialize(movement)">
+            <div class="col-12 col-sm-6">
+              <label class="form-label">Cuenta</label>
+              <select v-model="materializeAccountId" class="form-select" required>
+                <option v-for="account in accounts" :key="account.id" :value="account.id">
+                  {{ account.name }} ({{ account.currency }})
+                </option>
+              </select>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="form-check">
+                <input
+                  id="materialize-overdraft"
+                  v-model="materializeAllowOverdraft"
+                  type="checkbox"
+                  class="form-check-input"
+                />
+                <label class="form-check-label" for="materialize-overdraft">Permitir descubierto</label>
+              </div>
+            </div>
+            <div class="col-12 d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-sm btn-outline-secondary" @click="cancelMaterialize">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-sm btn-success">Confirmar</button>
+            </div>
+            <div v-if="materializeError" class="col-12">
+              <div class="alert alert-danger py-2 mb-0">{{ materializeError }}</div>
+            </div>
+          </form>
         </div>
       </li>
     </ul>
