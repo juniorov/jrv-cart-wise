@@ -141,8 +141,8 @@ function onQuickOzInput() {
   background: #f0fdfa;
   color: #0d9488;
   border-radius: 999px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -182,13 +182,13 @@ function onQuickOzInput() {
 .product-check span {
   font-weight: 600;
   color: #1e293b;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .product-check small {
   margin-left: auto;
   color: #94a3b8;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
 }
 
 .results-card {
