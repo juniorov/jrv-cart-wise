@@ -13,6 +13,7 @@ import { getGoalMovements, getGoals } from '@/apps/ahorros/services/objetivos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
 import { formatMoney } from '@/apps/ahorros/utils/currency'
 import { extractDistinctPersonas } from '@/apps/ahorros/utils/persons'
+import { formatDate, parseDateInput, toDateInputValue } from '@/apps/ahorros/utils/dates'
 
 const route = useRoute()
 const accountId = route.params.id
@@ -63,16 +64,6 @@ async function handleSubmit(payload) {
   }
 }
 
-function formatDate(value) {
-  const d = value?.toDate ? value.toDate() : new Date(value)
-  return d.toLocaleDateString('es-CR')
-}
-
-function toDateInputValue(value) {
-  const d = value?.toDate ? value.toDate() : new Date(value)
-  return d.toISOString().slice(0, 10)
-}
-
 function startEdit(movement) {
   editingId.value = movement.id
   editType.value = movement.type
@@ -99,7 +90,7 @@ async function saveEdit(movement) {
       type: editType.value,
       amount: Number(editAmount.value),
       description: editDescription.value.trim(),
-      date: new Date(editDate.value),
+      date: parseDateInput(editDate.value),
       persona: movement.goalId ? editPersona.value.trim() || null : null,
       allowOverdraft: editAllowOverdraft.value,
     })
