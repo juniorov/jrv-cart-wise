@@ -22,37 +22,27 @@ function formatRange(from, to) {
       menguante, para lo que resta de {{ today.getFullYear() }}.
     </p>
 
-    <div class="table-wrapper">
-      <table class="lunar-table">
-        <thead>
-          <tr>
-            <th>Fase</th>
-            <th>Fechas</th>
-            <th>Qué hacer</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(window, index) in windows"
-            :key="index"
-            :style="{ '--phase-color': PHASE_GUIDE[window.type].color }"
-          >
-            <td class="phase-cell">
-              <span class="phase-emoji">{{ PHASE_GUIDE[window.type].emoji }}</span>
-              <span class="phase-label">{{ PHASE_GUIDE[window.type].label }}</span>
-            </td>
-            <td class="range-cell">{{ formatRange(window.from, window.to) }}</td>
-            <td>
-              <ul class="activity-list">
-                <li v-for="item in PHASE_GUIDE[window.type].recommended" :key="item.text">
-                  <i :class="['bi', item.icon]"></i>
-                  <span>{{ item.text }}</span>
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="windows-grid">
+      <div
+        v-for="(window, index) in windows"
+        :key="index"
+        class="window-card"
+        :style="{ '--phase-color': PHASE_GUIDE[window.type].color }"
+      >
+        <div class="window-header">
+          <span class="phase-emoji">{{ PHASE_GUIDE[window.type].emoji }}</span>
+          <div>
+            <div class="phase-label">{{ PHASE_GUIDE[window.type].label }}</div>
+            <div class="range-label">{{ formatRange(window.from, window.to) }}</div>
+          </div>
+        </div>
+        <ul class="activity-list">
+          <li v-for="item in PHASE_GUIDE[window.type].recommended" :key="item.text">
+            <i :class="['bi', item.icon]"></i>
+            <span>{{ item.text }}</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div class="tips-card">
@@ -66,7 +56,7 @@ function formatRange(from, to) {
 
 <style scoped>
 .calendar-page {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 1.5rem 1rem 2rem;
 }
@@ -75,64 +65,56 @@ function formatRange(from, to) {
   color: #94a3b8;
   font-size: 0.9rem;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.table-wrapper {
-  overflow-x: auto;
-  border-radius: 0.85rem;
+.windows-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .windows-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .windows-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.window-card {
   background: #1e293b;
+  border-radius: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  border-left: 4px solid var(--phase-color, #6366f1);
 }
 
-.lunar-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  color: #e2e8f0;
-}
-
-.lunar-table th {
-  text-align: left;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #64748b;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #334155;
-  white-space: nowrap;
-}
-
-.lunar-table td {
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid #334155;
-  vertical-align: top;
-}
-
-.lunar-table tr:last-child td {
-  border-bottom: none;
-}
-
-.lunar-table tr {
-  border-left: 3px solid var(--phase-color, #6366f1);
-}
-
-.phase-cell {
-  white-space: nowrap;
+.window-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .phase-emoji {
-  font-size: 1.3rem;
-  margin-right: 0.4rem;
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .phase-label {
   font-weight: 700;
   color: #f8fafc;
+  font-size: 0.95rem;
 }
 
-.range-cell {
-  white-space: nowrap;
+.range-label {
   color: #94a3b8;
+  font-size: 0.82rem;
   text-transform: capitalize;
 }
 
@@ -142,14 +124,15 @@ function formatRange(from, to) {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  min-width: 260px;
+  gap: 0.5rem;
 }
 
 .activity-list li {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #e2e8f0;
 }
 
 .activity-list i {
