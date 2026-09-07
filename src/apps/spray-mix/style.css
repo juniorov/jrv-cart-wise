@@ -1,0 +1,6 @@
+/* Fondo claro tipo ficha técnica de campo, escopado a .app-spray-mix. */
+.app-spray-mix {
+  background: #f0fdfa;
+  min-height: calc(100dvh - 2.75rem);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}

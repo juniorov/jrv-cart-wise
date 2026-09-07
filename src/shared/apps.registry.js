@@ -39,4 +39,13 @@ export const apps = [
     routeBase: '/lunar-garden',
     requiresAuth: false,
   },
+  {
+    slug: 'spray-mix',
+    name: 'Dosificador Agrícola',
+    description: 'Calcula cuánto producto echar a la bomba según los litros de agua',
+    icon: 'bi-eyedropper',
+    color: '#0d9488',
+    routeBase: '/spray-mix',
+    requiresAuth: false,
+  },
 ]

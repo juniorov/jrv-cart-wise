@@ -94,6 +94,12 @@ export default defineConfig({
             url: '/lunar-garden',
             icons: [{ src: 'pwa-192x192.svg', sizes: '192x192', type: 'image/svg+xml' }],
           },
+          {
+            name: 'Dosificador Agrícola',
+            short_name: 'Dosis',
+            url: '/spray-mix',
+            icons: [{ src: 'pwa-192x192.svg', sizes: '192x192', type: 'image/svg+xml' }],
+          },
         ],
       },
     }),
