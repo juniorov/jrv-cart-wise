@@ -112,6 +112,16 @@ export function getNextWindow(date, windows) {
   return windows.find((w) => w.from.getTime() >= day) ?? null
 }
 
+/**
+ * Próxima ventana de un tipo lunar específico (ej. 'menguante') a partir de `date`.
+ * Útil para sugerir cuándo repetir una labor (fumigar, fertilizar) según la fase
+ * tradicionalmente recomendada para esa labor.
+ */
+export function getNextWindowOfType(date, type, days = 120) {
+  const windows = getPhaseWindows(date, days).filter((w) => w.type === type)
+  return getNextWindow(date, windows)
+}
+
 /** Días que faltan desde `date` hasta el 31 de diciembre de ese mismo año, inclusive. */
 export function daysUntilYearEnd(date) {
   const yearEnd = new Date(date.getFullYear(), 11, 31)

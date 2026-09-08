@@ -62,6 +62,21 @@ export const PHASE_GUIDE = {
   },
 }
 
+/**
+ * A qué fase lunar conviene mover la próxima aplicación de fumigación/fertilización,
+ * según la categoría y el subtipo de producto. Basado en las recomendaciones de
+ * PHASE_GUIDE: menguante favorece insecticida/fungicida/veneno para maleza y abono de
+ * fondo (savia baja, plagas menos activas); creciente favorece vitaminas/fertilizante
+ * foliar (savia sube, mejor absorción hacia arriba).
+ */
+export const CATEGORY_PHASE_MAP = {
+  'fumigacion:herbicida': 'menguante',
+  'fumigacion:insecticida': 'menguante',
+  'fumigacion:fungicida': 'menguante',
+  'fertilizacion:abono': 'menguante',
+  'fertilizacion:vitaminas': 'creciente',
+}
+
 /** Tips generales de jardinería lunar que no dependen de una sola fase. */
 export const GENERAL_TIPS = [
   'Los injertos prenden mejor en luna llena o creciente; evita hacerlos en menguante.',
