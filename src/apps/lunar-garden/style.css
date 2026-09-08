@@ -4,3 +4,22 @@
   min-height: calc(100dvh - 2.75rem);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* Las vistas de lotes/registros usan componentes Bootstrap (card, list-group, form-control).
+   El shell de la app les pone data-bs-theme="dark" para que Bootstrap 5.3 ajuste todos sus
+   componentes (fondo, texto, badges, alerts, botones outline, etc.) al tema oscuro sin tener
+   que sobreescribir clase por clase. */
+.app-lunar-garden .card {
+  --bs-card-bg: #1e293b;
+}
+
+.app-lunar-garden .list-group-item {
+  --bs-list-group-bg: #1e293b;
+  --bs-list-group-border-color: #334155;
+}
+
+.app-lunar-garden .form-control,
+.app-lunar-garden .form-select {
+  background-color: #0f172a;
+  border-color: #334155;
+}

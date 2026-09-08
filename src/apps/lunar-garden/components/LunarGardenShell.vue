@@ -3,13 +3,16 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div class="lunar-garden-page">
+  <div class="lunar-garden-page" data-bs-theme="dark">
     <div class="lunar-tabs">
       <RouterLink to="/lunar-garden" class="lunar-tab" exact-active-class="active">
         🌙 Hoy
       </RouterLink>
       <RouterLink to="/lunar-garden/calendario" class="lunar-tab" active-class="active">
         📅 Próximos meses
+      </RouterLink>
+      <RouterLink to="/lunar-garden/lotes" class="lunar-tab" active-class="active">
+        🧪 Registros
       </RouterLink>
     </div>
     <RouterView />

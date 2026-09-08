@@ -33,11 +33,11 @@ export const apps = [
   {
     slug: 'lunar-garden',
     name: 'Calendario Lunar',
-    description: 'Cuándo sembrar, podar, fertilizar y fumigar según la fase lunar',
+    description: 'Cuándo sembrar, podar, fertilizar y fumigar según la fase lunar, con registro por lote',
     icon: 'bi-moon-stars-fill',
     color: '#6366f1',
     routeBase: '/lunar-garden',
-    requiresAuth: false,
+    requiresAuth: true,
   },
   {
     slug: 'ahorros',
