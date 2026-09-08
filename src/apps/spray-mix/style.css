@@ -3,4 +3,8 @@
   background: #f0fdfa;
   min-height: calc(100dvh - 2.75rem);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* La app no tiene paleta oscura propia; sin esto los controles nativos
+     (checkbox, inputs numéricos) se pintan en modo oscuro del sistema y
+     chocan con las tarjetas claras. */
+  color-scheme: light;
 }
