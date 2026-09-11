@@ -12,6 +12,9 @@ const props = defineProps({
   // aplica; cuando vive en una cuenta, solo aplica si el movimiento se vincula a un objetivo.
   showPersona: { type: Boolean, default: false },
   showOverdraft: { type: Boolean, default: true },
+  // Cuentas propias (misma moneda, sin incluir la actual) disponibles como destino de transferencia.
+  // Si viene vacío, no se ofrece la opción "Transferencia".
+  transferAccounts: { type: Array, default: () => [] },
 })
 const emit = defineEmits(['submit', 'goal-change'])
 
@@ -21,6 +24,7 @@ const description = ref('')
 const date = ref(todayInputValue())
 const goalId = ref('')
 const persona = ref('')
+const toAccountId = ref('')
 const allowOverdraft = ref(false)
 const error = ref('')
 
@@ -35,18 +39,24 @@ function handleSubmit() {
     error.value = 'El monto debe ser mayor a cero.'
     return
   }
+  if (type.value === 'transferencia' && !toAccountId.value) {
+    error.value = 'Elegí la cuenta destino.'
+    return
+  }
   emit('submit', {
     type: type.value,
     amount: Number(amount.value),
     description: description.value.trim(),
     date: parseDateInput(date.value),
-    goalId: goalId.value || null,
-    persona: goalId.value || props.showPersona ? persona.value.trim() || null : null,
+    goalId: type.value === 'transferencia' ? null : goalId.value || null,
+    persona: type.value !== 'transferencia' && (goalId.value || props.showPersona) ? persona.value.trim() || null : null,
+    toAccountId: type.value === 'transferencia' ? toAccountId.value : null,
     allowOverdraft: allowOverdraft.value,
   })
   amount.value = null
   description.value = ''
   persona.value = ''
+  toAccountId.value = ''
   allowOverdraft.value = false
 }
 </script>
@@ -58,6 +68,7 @@ function handleSubmit() {
       <select id="mv-type" v-model="type" class="form-select">
         <option value="ingreso">Ingreso</option>
         <option value="egreso">Egreso</option>
+        <option v-if="transferAccounts.length > 0" value="transferencia">Transferencia</option>
       </select>
     </div>
     <div class="col-6 col-sm-3">
@@ -87,7 +98,15 @@ function handleSubmit() {
       />
     </div>
 
-    <template v-if="goals.length > 0">
+    <div v-if="type === 'transferencia'" class="col-12 col-sm-6">
+      <label class="form-label" for="mv-to-account">Cuenta destino</label>
+      <select id="mv-to-account" v-model="toAccountId" class="form-select" required>
+        <option value="" disabled>Elegí una cuenta</option>
+        <option v-for="acc in transferAccounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option>
+      </select>
+    </div>
+
+    <template v-if="type !== 'transferencia' && goals.length > 0">
       <div class="col-12 col-sm-6">
         <label class="form-label" for="mv-goal">Vincular a objetivo (opcional)</label>
         <select id="mv-goal" v-model="goalId" class="form-select" @change="handleGoalChange">
@@ -96,7 +115,7 @@ function handleSubmit() {
         </select>
       </div>
     </template>
-    <div v-if="showPersona || goalId" class="col-12 col-sm-6">
+    <div v-if="type !== 'transferencia' && (showPersona || goalId)" class="col-12 col-sm-6">
       <label class="form-label" for="mv-persona">Persona</label>
       <PersonaAutocomplete id="mv-persona" v-model="persona" :suggestions="personaSuggestions" />
     </div>

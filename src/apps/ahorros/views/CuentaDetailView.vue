@@ -1,13 +1,16 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { getAccount } from '@/apps/ahorros/services/cuentas'
+import { getAccount, getAccounts } from '@/apps/ahorros/services/cuentas'
 import { getEntities } from '@/apps/ahorros/services/entidades'
 import {
   addAccountMovement,
+  addTransfer,
   deleteAccountMovement,
+  deleteTransfer,
   getAccountMovements,
   updateAccountMovement,
+  updateTransfer,
 } from '@/apps/ahorros/services/movimientos'
 import { getGoalMovements, getGoals } from '@/apps/ahorros/services/objetivos'
 import MovementForm from '@/apps/ahorros/components/MovementForm.vue'
@@ -22,6 +25,7 @@ const account = ref(null)
 const entity = ref(null)
 const movements = ref([])
 const goals = ref([])
+const accounts = ref([])
 const personaSuggestions = ref([])
 const loading = ref(true)
 const serverError = ref('')
@@ -35,18 +39,32 @@ const editPersona = ref('')
 const editAllowOverdraft = ref(false)
 const editError = ref('')
 
+const transferAccounts = computed(() =>
+  accounts.value.filter((a) => a.id !== accountId && a.currency === account.value?.currency),
+)
+
+function accountName(id) {
+  return accounts.value.find((a) => a.id === id)?.name ?? 'cuenta'
+}
+
+function isTransfer(movement) {
+  return movement.type === 'transferencia_salida' || movement.type === 'transferencia_entrada'
+}
+
 async function loadAll() {
   loading.value = true
-  const [accountResult, entities, movementsResult, goalsResult] = await Promise.all([
+  const [accountResult, entities, movementsResult, goalsResult, accountsResult] = await Promise.all([
     getAccount(accountId),
     getEntities(),
     getAccountMovements(accountId),
     getGoals(),
+    getAccounts(),
   ])
   account.value = accountResult
   entity.value = entities.find((e) => e.id === accountResult?.entityId) ?? null
   movements.value = movementsResult
   goals.value = goalsResult
+  accounts.value = accountsResult
   loading.value = false
 }
 
@@ -57,7 +75,11 @@ async function handleGoalChange(goalId) {
 async function handleSubmit(payload) {
   serverError.value = ''
   try {
-    await addAccountMovement(accountId, payload)
+    if (payload.type === 'transferencia') {
+      await addTransfer(accountId, payload.toAccountId, payload)
+    } else {
+      await addAccountMovement(accountId, payload)
+    }
     await loadAll()
   } catch (err) {
     serverError.value = err.message
@@ -86,14 +108,23 @@ async function saveEdit(movement) {
     return
   }
   try {
-    await updateAccountMovement(accountId, movement.id, {
-      type: editType.value,
-      amount: Number(editAmount.value),
-      description: editDescription.value.trim(),
-      date: parseDateInput(editDate.value),
-      persona: movement.goalId ? editPersona.value.trim() || null : null,
-      allowOverdraft: editAllowOverdraft.value,
-    })
+    if (isTransfer(movement)) {
+      await updateTransfer(accountId, movement.id, {
+        amount: Number(editAmount.value),
+        description: editDescription.value.trim(),
+        date: parseDateInput(editDate.value),
+        allowOverdraft: editAllowOverdraft.value,
+      })
+    } else {
+      await updateAccountMovement(accountId, movement.id, {
+        type: editType.value,
+        amount: Number(editAmount.value),
+        description: editDescription.value.trim(),
+        date: parseDateInput(editDate.value),
+        persona: movement.goalId ? editPersona.value.trim() || null : null,
+        allowOverdraft: editAllowOverdraft.value,
+      })
+    }
     editingId.value = null
     await loadAll()
   } catch (err) {
@@ -103,7 +134,11 @@ async function saveEdit(movement) {
 
 async function handleDeleteMovement(movement) {
   if (!confirm('¿Eliminar este movimiento?')) return
-  await deleteAccountMovement(accountId, movement.id)
+  if (isTransfer(movement)) {
+    await deleteTransfer(accountId, movement.id)
+  } else {
+    await deleteAccountMovement(accountId, movement.id)
+  }
   await loadAll()
 }
 
@@ -134,6 +169,7 @@ onMounted(loadAll)
           :goals="goals"
           :persona-suggestions="personaSuggestions"
           :server-error="serverError"
+          :transfer-accounts="transferAccounts"
           @submit="handleSubmit"
           @goal-change="handleGoalChange"
         />
@@ -146,12 +182,17 @@ onMounted(loadAll)
       <li v-for="movement in movements" :key="movement.id" class="list-group-item">
         <template v-if="editingId === movement.id">
           <form class="row g-2 align-items-end" @submit.prevent="saveEdit(movement)">
-            <div class="col-6 col-sm-3">
+            <div v-if="!isTransfer(movement)" class="col-6 col-sm-3">
               <label class="form-label">Tipo</label>
               <select v-model="editType" class="form-select">
                 <option value="ingreso">Ingreso</option>
                 <option value="egreso">Egreso</option>
               </select>
+            </div>
+            <div v-else class="col-12 col-sm-3">
+              <span class="badge text-bg-info">
+                {{ movement.type === 'transferencia_salida' ? 'Transferencia enviada' : 'Transferencia recibida' }}
+              </span>
             </div>
             <div class="col-6 col-sm-3">
               <label class="form-label">Monto</label>
@@ -165,7 +206,7 @@ onMounted(loadAll)
               <label class="form-label">Descripción</label>
               <input v-model="editDescription" type="text" class="form-control" />
             </div>
-            <div v-if="movement.goalId" class="col-12 col-sm-6">
+            <div v-if="!isTransfer(movement) && movement.goalId" class="col-12 col-sm-6">
               <label class="form-label">Persona</label>
               <input v-model="editPersona" type="text" class="form-control" />
             </div>
@@ -195,6 +236,13 @@ onMounted(loadAll)
           <div>
             <div>
               <span
+                v-if="isTransfer(movement)"
+                class="badge me-2 text-bg-info"
+              >
+                {{ movement.type === 'transferencia_salida' ? 'Transferencia enviada' : 'Transferencia recibida' }}
+              </span>
+              <span
+                v-else
                 class="badge me-2"
                 :class="movement.type === 'ingreso' ? 'text-bg-success' : 'text-bg-danger'"
               >
@@ -212,10 +260,23 @@ onMounted(loadAll)
                   {{ goals.find((g) => g.id === movement.goalId)?.name ?? 'objetivo' }}
                 </RouterLink>
               </span>
+              <span v-if="movement.transferAccountId">
+                ·
+                <RouterLink :to="`/ahorros/cuentas/${movement.transferAccountId}`">
+                  {{ movement.type === 'transferencia_salida' ? '→' : '←' }} {{ accountName(movement.transferAccountId) }}
+                </RouterLink>
+              </span>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <div class="fw-semibold" :class="movement.type === 'ingreso' ? 'text-success' : 'text-danger'">
+            <div
+              v-if="isTransfer(movement)"
+              class="fw-semibold"
+              :class="movement.type === 'transferencia_entrada' ? 'text-success' : 'text-danger'"
+            >
+              {{ movement.type === 'transferencia_entrada' ? '+' : '-' }}{{ formatMoney(movement.amount, account.currency) }}
+            </div>
+            <div v-else class="fw-semibold" :class="movement.type === 'ingreso' ? 'text-success' : 'text-danger'">
               {{ movement.type === 'ingreso' ? '+' : '-' }}{{ formatMoney(movement.amount, account.currency) }}
             </div>
             <button
