@@ -23,6 +23,7 @@ const accountId = route.params.id
 
 const account = ref(null)
 const entity = ref(null)
+const entities = ref([])
 const movements = ref([])
 const goals = ref([])
 const accounts = ref([])
@@ -39,13 +40,22 @@ const editPersona = ref('')
 const editAllowOverdraft = ref(false)
 const editError = ref('')
 
-const transferAccounts = computed(() =>
-  accounts.value.filter((a) => a.id !== accountId && a.currency === account.value?.currency),
-)
-
-function accountName(id) {
-  return accounts.value.find((a) => a.id === id)?.name ?? 'cuenta'
+function entityName(entityId) {
+  return entities.value.find((e) => e.id === entityId)?.name ?? null
 }
+
+function accountLabel(id) {
+  const acc = accounts.value.find((a) => a.id === id)
+  if (!acc) return 'cuenta'
+  const bank = entityName(acc.entityId)
+  return bank ? `${acc.name} (${bank})` : acc.name
+}
+
+const transferAccounts = computed(() =>
+  accounts.value
+    .filter((a) => a.id !== accountId && a.currency === account.value?.currency)
+    .map((a) => ({ ...a, label: accountLabel(a.id) })),
+)
 
 function isTransfer(movement) {
   return movement.type === 'transferencia_salida' || movement.type === 'transferencia_entrada'
@@ -53,7 +63,7 @@ function isTransfer(movement) {
 
 async function loadAll() {
   loading.value = true
-  const [accountResult, entities, movementsResult, goalsResult, accountsResult] = await Promise.all([
+  const [accountResult, entitiesResult, movementsResult, goalsResult, accountsResult] = await Promise.all([
     getAccount(accountId),
     getEntities(),
     getAccountMovements(accountId),
@@ -61,7 +71,8 @@ async function loadAll() {
     getAccounts(),
   ])
   account.value = accountResult
-  entity.value = entities.find((e) => e.id === accountResult?.entityId) ?? null
+  entities.value = entitiesResult
+  entity.value = entitiesResult.find((e) => e.id === accountResult?.entityId) ?? null
   movements.value = movementsResult
   goals.value = goalsResult
   accounts.value = accountsResult
@@ -263,7 +274,7 @@ onMounted(loadAll)
               <span v-if="movement.transferAccountId">
                 ·
                 <RouterLink :to="`/ahorros/cuentas/${movement.transferAccountId}`">
-                  {{ movement.type === 'transferencia_salida' ? '→' : '←' }} {{ accountName(movement.transferAccountId) }}
+                  {{ movement.type === 'transferencia_salida' ? '→' : '←' }} {{ accountLabel(movement.transferAccountId) }}
                 </RouterLink>
               </span>
             </div>

@@ -102,7 +102,7 @@ function handleSubmit() {
       <label class="form-label" for="mv-to-account">Cuenta destino</label>
       <select id="mv-to-account" v-model="toAccountId" class="form-select" required>
         <option value="" disabled>Elegí una cuenta</option>
-        <option v-for="acc in transferAccounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option>
+        <option v-for="acc in transferAccounts" :key="acc.id" :value="acc.id">{{ acc.label ?? acc.name }}</option>
       </select>
     </div>
 
