@@ -204,3 +204,122 @@ export async function deleteAccountMovement(accountId, movementId) {
   }
   await batch.commit()
 }
+
+/**
+ * Registra una transferencia entre dos cuentas propias: resta el monto de `fromAccountId`, lo
+ * suma a `toAccountId`, y escribe un movimiento espejo en cada una (`transferencia_salida` /
+ * `transferencia_entrada`) enlazados entre sí con `transferAccountId`/`transferMovementId`, igual
+ * que el vínculo cuenta↔objetivo de arriba.
+ */
+export async function addTransfer(
+  fromAccountId,
+  toAccountId,
+  { amount, description, date, allowOverdraft = false },
+) {
+  const fromAccountRef = doc(db, 'ahorros_accounts', fromAccountId)
+  const toAccountRef = doc(db, 'ahorros_accounts', toAccountId)
+  const fromMovementRef = doc(collection(fromAccountRef, 'movements'))
+  const toMovementRef = doc(collection(toAccountRef, 'movements'))
+
+  const fromAccountSnap = await getDoc(fromAccountRef)
+  if (!fromAccountSnap.exists()) throw new Error('La cuenta de origen no existe')
+  const currentBalance = fromAccountSnap.data().balance ?? 0
+  if (currentBalance - amount < 0 && !allowOverdraft) {
+    throw new Error(
+      'La transferencia deja la cuenta de origen en negativo. Marca "permitir descubierto" si es intencional.',
+    )
+  }
+
+  const batch = writeBatch(db)
+  batch.update(fromAccountRef, { balance: increment(-amount) })
+  batch.update(toAccountRef, { balance: increment(amount) })
+  batch.set(fromMovementRef, {
+    type: 'transferencia_salida',
+    amount,
+    description,
+    date,
+    goalId: null,
+    persona: null,
+    transferAccountId: toAccountId,
+    transferMovementId: toMovementRef.id,
+    createdAt: serverTimestamp(),
+  })
+  batch.set(toMovementRef, {
+    type: 'transferencia_entrada',
+    amount,
+    description,
+    date,
+    goalId: null,
+    persona: null,
+    transferAccountId: fromAccountId,
+    transferMovementId: fromMovementRef.id,
+    createdAt: serverTimestamp(),
+  })
+  await batch.commit()
+
+  return fromMovementRef.id
+}
+
+/**
+ * Edita el monto/fecha/descripción de una transferencia ya registrada (no se puede cambiar la
+ * cuenta contraparte ni la dirección). Recalcula el saldo de ambas cuentas y actualiza los dos
+ * movimientos espejo.
+ */
+export async function updateTransfer(accountId, movementId, { amount, description, date, allowOverdraft = false }) {
+  const accountRef = doc(db, 'ahorros_accounts', accountId)
+  const movementRef = doc(accountRef, 'movements', movementId)
+
+  const movementSnap = await getDoc(movementRef)
+  if (!movementSnap.exists()) throw new Error('El movimiento no existe')
+  const movement = movementSnap.data()
+  const isOutgoing = movement.type === 'transferencia_salida'
+
+  const otherAccountRef = doc(db, 'ahorros_accounts', movement.transferAccountId)
+  const otherMovementRef = doc(otherAccountRef, 'movements', movement.transferMovementId)
+
+  const fromAccountRef = isOutgoing ? accountRef : otherAccountRef
+  const fromMovementRef = isOutgoing ? movementRef : otherMovementRef
+  const toAccountRef = isOutgoing ? otherAccountRef : accountRef
+  const toMovementRef = isOutgoing ? otherMovementRef : movementRef
+
+  const fromAccountSnap = await getDoc(fromAccountRef)
+  if (!fromAccountSnap.exists()) throw new Error('La cuenta de origen no existe')
+  const currentBalance = fromAccountSnap.data().balance ?? 0
+  if (currentBalance + movement.amount - amount < 0 && !allowOverdraft) {
+    throw new Error(
+      'El cambio deja la cuenta de origen en negativo. Marca "permitir descubierto" si es intencional.',
+    )
+  }
+
+  const batch = writeBatch(db)
+  batch.update(fromAccountRef, { balance: increment(movement.amount - amount) })
+  batch.update(toAccountRef, { balance: increment(amount - movement.amount) })
+  batch.update(fromMovementRef, { amount, description, date })
+  batch.update(toMovementRef, { amount, description, date })
+  await batch.commit()
+}
+
+/**
+ * Elimina una transferencia, revirtiendo su efecto en el saldo de ambas cuentas y borrando los
+ * dos movimientos espejo.
+ */
+export async function deleteTransfer(accountId, movementId) {
+  const accountRef = doc(db, 'ahorros_accounts', accountId)
+  const movementRef = doc(accountRef, 'movements', movementId)
+
+  const movementSnap = await getDoc(movementRef)
+  if (!movementSnap.exists()) return
+  const movement = movementSnap.data()
+  const isOutgoing = movement.type === 'transferencia_salida'
+
+  const otherAccountRef = doc(db, 'ahorros_accounts', movement.transferAccountId)
+  const otherMovementRef = doc(otherAccountRef, 'movements', movement.transferMovementId)
+  const delta = isOutgoing ? movement.amount : -movement.amount
+
+  const batch = writeBatch(db)
+  batch.update(accountRef, { balance: increment(delta) })
+  batch.update(otherAccountRef, { balance: increment(-delta) })
+  batch.delete(movementRef)
+  batch.delete(otherMovementRef)
+  await batch.commit()
+}
