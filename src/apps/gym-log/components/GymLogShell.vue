@@ -116,6 +116,16 @@ async function handleLogout() {
                 Registrar
               </RouterLink>
             </li>
+            <li class="nav-item">
+              <RouterLink
+                class="nav-link"
+                to="/gym-log/cronometros"
+                active-class="active"
+                @click="closeMenu"
+              >
+                Cronómetros
+              </RouterLink>
+            </li>
             <li v-if="authStore.isAuthenticated" class="nav-item">
               <button class="nav-link btn btn-link" @click="handleLogout">
                 <i class="bi bi-box-arrow-right me-1"></i>Salir

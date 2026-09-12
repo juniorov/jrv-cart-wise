@@ -6,7 +6,7 @@ export const apps = [
   {
     slug: 'cart-wise',
     name: 'CartWise',
-    description: 'Comparador de precios y carrito inteligente',
+    description: 'Comparador de precios y carrito',
     icon: 'bi-cart-check-fill',
     color: '#10b981',
     routeBase: '/cart-wise',
@@ -15,7 +15,7 @@ export const apps = [
   {
     slug: 'global-exchange',
     name: 'Tipo de Cambio Global',
-    description: 'Conversor de monedas multi-destino, funciona offline',
+    description: 'Conversor de monedas offline',
     icon: 'bi-currency-exchange',
     color: '#1d4ed8',
     routeBase: '/global-exchange',
@@ -24,7 +24,7 @@ export const apps = [
   {
     slug: 'calc-invoices',
     name: 'Calculadora de Cobros',
-    description: 'Cobros con comisión y horas trabajadas',
+    description: 'Cobros con comisión y horas',
     icon: 'bi-receipt',
     color: '#667eea',
     routeBase: '/calc-invoices',
@@ -33,7 +33,7 @@ export const apps = [
   {
     slug: 'lunar-garden',
     name: 'Calendario Lunar',
-    description: 'Cuándo sembrar, podar, fertilizar y fumigar según la fase lunar, con registro por lote',
+    description: 'Labores agrícolas según la fase lunar',
     icon: 'bi-moon-stars-fill',
     color: '#6366f1',
     routeBase: '/lunar-garden',
@@ -42,7 +42,7 @@ export const apps = [
   {
     slug: 'ahorros',
     name: 'Ahorros',
-    description: 'Metas de ahorro familiares con aportes por persona',
+    description: 'Metas de ahorro familiares',
     icon: 'bi-piggy-bank-fill',
     color: '#d97706',
     routeBase: '/ahorros',
@@ -51,7 +51,7 @@ export const apps = [
   {
     slug: 'spray-mix',
     name: 'Dosificador Agrícola',
-    description: 'Calcula cuánto producto echar a la bomba según los litros de agua',
+    description: 'Dosis de producto según litros de agua',
     icon: 'bi-eyedropper',
     color: '#0d9488',
     routeBase: '/spray-mix',
@@ -60,7 +60,7 @@ export const apps = [
   {
     slug: 'gym-log',
     name: 'Gym Log',
-    description: 'Registro de rutinas y entrenamientos con progreso por calendario y gráfico',
+    description: 'Rutinas y entrenamientos con progreso',
     icon: 'bi-activity',
     color: '#dc2626',
     routeBase: '/gym-log',

@@ -14,12 +14,12 @@
   --color-accent-bg: rgba(124, 58, 237, 0.1);
   --color-ring: #dc2626;
 
-  --color-background: #fff5f5;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-elevated: #ffffff;
+  --color-surface-elevated: #fdfaf9;
   --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
   --color-text-inverse: #ffffff;
   --color-border: #fecaca;
   --color-border-strong: #cbd5e1;
@@ -87,14 +87,14 @@
 
 @media (prefers-color-scheme: dark) {
   .app-gym-log {
-    --color-background: #1a0f0f;
-    --color-surface: #251414;
-    --color-surface-elevated: #2d1818;
-    --color-text-primary: #fbe8e8;
-    --color-text-secondary: #cbaaaa;
-    --color-text-muted: #9a7d7d;
-    --color-border: #3a1c1c;
-    --color-border-strong: #4a2424;
+    --color-background: #1a1a1a;
+    --color-surface: #262626;
+    --color-surface-elevated: #2e2e2e;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #e2e8f0;
+    --color-text-muted: #cbd5e1;
+    --color-border: #404040;
+    --color-border-strong: #525252;
   }
 }
 

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { logWorkout } from '../services/entrenamientos'
 import { getRoutines } from '../services/rutinas'
 import { todayInputValue } from '../utils/dates'
+import { kgToLb, lbToKg } from '../utils/units'
 
 const router = useRouter()
 
@@ -19,7 +20,18 @@ const error = ref('')
 const selectedRoutine = computed(() => routines.value.find((r) => r.id === selectedRoutineId.value) ?? null)
 
 function blankSet(metric) {
-  return metric === 'time' ? { seconds: null, weight: null } : { reps: null, weight: null }
+  const base = { weight: null, unit: 'kg' }
+  return metric === 'time' ? { ...base, seconds: null } : { ...base, reps: null }
+}
+
+function displayWeight(set) {
+  if (set.weight == null) return null
+  return set.unit === 'lb' ? kgToLb(set.weight) : set.weight
+}
+
+function onWeightInput(set, rawValue) {
+  const value = rawValue === '' ? null : Number(rawValue)
+  set.weight = value == null ? null : set.unit === 'lb' ? lbToKg(value) : value
 }
 
 function exercisesFromRoutine(routine) {
@@ -63,11 +75,15 @@ async function save() {
   saving.value = true
   error.value = ''
   try {
+    const exercisesInKg = exercises.value.map((exercise) => ({
+      ...exercise,
+      sets: exercise.sets.map(({ unit, ...set }) => set),
+    }))
     await logWorkout({
       date: date.value,
       routineId: selectedRoutine.value?.id ?? null,
       routineName: selectedRoutine.value?.name ?? '',
-      exercises: exercises.value,
+      exercises: exercisesInKg,
       notes: notes.value,
     })
     router.push({ name: 'gym-log-entrenamientos' })
@@ -138,7 +154,21 @@ onMounted(async () => {
             placeholder="Segundos"
           />
           <input v-else v-model.number="set.reps" type="number" min="0" class="form-control" placeholder="Reps" />
-          <input v-model.number="set.weight" type="number" min="0" step="0.5" class="form-control" placeholder="Peso (kg)" />
+          <div class="weight-input-group">
+            <input
+              :value="displayWeight(set)"
+              @input="onWeightInput(set, $event.target.value)"
+              type="number"
+              min="0"
+              step="0.5"
+              class="form-control"
+              placeholder="Peso"
+            />
+            <select v-model="set.unit" class="form-select unit-select">
+              <option value="kg">kg</option>
+              <option value="lb">lb</option>
+            </select>
+          </div>
           <button type="button" class="btn btn-outline-secondary btn-sm" @click="removeSet(exercise, setIndex)">
             <i class="bi bi-x"></i>
           </button>
@@ -174,9 +204,20 @@ onMounted(async () => {
 
 .set-row {
   display: grid;
-  grid-template-columns: auto 1fr 1fr auto;
+  grid-template-columns: auto 1fr 1.4fr auto;
   gap: 0.5rem;
   align-items: center;
+}
+
+.weight-input-group {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.unit-select {
+  flex: 0 0 4rem;
+  padding-left: 0.4rem;
+  padding-right: 0.25rem;
 }
 
 .set-number {

@@ -38,5 +38,10 @@ export default {
       name: 'gym-log-plan-semanal',
       component: () => import('@/apps/gym-log/views/WeeklyPlanView.vue'),
     },
+    {
+      path: 'cronometros',
+      name: 'gym-log-cronometros',
+      component: () => import('@/apps/gym-log/views/TimersView.vue'),
+    },
   ],
 }

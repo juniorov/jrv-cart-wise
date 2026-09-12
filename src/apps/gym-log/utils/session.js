@@ -68,6 +68,32 @@ export function buildStepsFromRoutine(routine) {
 }
 
 /**
+ * Agrupa el arreglo plano de steps por ejercicio (en su orden de primera aparición), para
+ * mostrar cada ejercicio como una tarjeta con todas sus series juntas —incluso si en `steps`
+ * están intercaladas por ser parte de un superset—. Cada entrada conserva el step original (para
+ * mutarlo in-place) junto a su índice en el arreglo plano.
+ */
+export function groupStepsForDisplay(steps) {
+  const order = []
+  const byName = new Map()
+
+  steps.forEach((step, index) => {
+    if (!byName.has(step.exerciseName)) {
+      byName.set(step.exerciseName, {
+        exerciseName: step.exerciseName,
+        metric: step.metric,
+        supersetLabel: step.supersetLabel,
+        items: [],
+      })
+      order.push(step.exerciseName)
+    }
+    byName.get(step.exerciseName).items.push({ step, index })
+  })
+
+  return order.map((name) => byName.get(name))
+}
+
+/**
  * Convierte los steps ya marcados como `done` de vuelta al shape `{ name, sets: [...] }` que usa
  * `gym_log_workouts` (mismo formato que ya consumen el historial, el calendario y el gráfico de
  * progreso), agrupando por ejercicio en su orden de primera aparición.
