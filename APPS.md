@@ -15,6 +15,7 @@ saber en qué carpeta trabajar:**
 | "lunar-garden", "calendario lunar", "fases lunares", "cuándo sembrar" | `src/apps/lunar-garden/` | `/lunar-garden` (+ `/lunar-garden/calendario`, `/lunar-garden/lotes`, `/lunar-garden/lotes/:id`) | Prefijo `lunar_garden_` (`lunar_garden_lots` + subcolección `records`) | — | Sí |
 | "spray-mix", "dosificador agrícola", "calculadora de mezclas", "la bomba de fumigar" | `src/apps/spray-mix/` | `/spray-mix` (+ `/spray-mix/productos`) | — (sin Firestore) | Prefijo `spray_mix_` (`spray_mix_products_v1`) | No |
 | "ahorros", "ahorro familiar", "metas de ahorro" | `src/apps/ahorros/` | `/ahorros` | Prefijo `ahorros_` (`ahorros_entities`, `ahorros_accounts`, `ahorros_goals`) + `users_by_email` (colección compartida entre apps) | — | Sí |
+| "gym-log", "GymLog", "registro de entrenamientos", "rutinas de gimnasio", "plan semanal" | `src/apps/gym-log/` | `/gym-log` (+ `/gym-log/rutinas`, `/gym-log/rutinas/:id`, `/gym-log/entrenamientos`, `/gym-log/registrar`, `/gym-log/entrenar`, `/gym-log/plan-semanal`) | Prefijo `gym_log_` (`gym_log_routines`, `gym_log_workouts`, `gym_log_active_sessions`, `gym_log_weekly_plan`, `gym_log_week_overrides` — las últimas 3 con doc id = uid) | — | Sí |
 
 ## Piezas compartidas del host
 

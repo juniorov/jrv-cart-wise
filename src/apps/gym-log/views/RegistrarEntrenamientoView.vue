@@ -1,0 +1,192 @@
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { logWorkout } from '../services/entrenamientos'
+import { getRoutines } from '../services/rutinas'
+import { todayInputValue } from '../utils/dates'
+
+const router = useRouter()
+
+const routines = ref([])
+const selectedRoutineId = ref('')
+const date = ref(todayInputValue())
+const notes = ref('')
+const exercises = ref([])
+const loading = ref(true)
+const saving = ref(false)
+const error = ref('')
+
+const selectedRoutine = computed(() => routines.value.find((r) => r.id === selectedRoutineId.value) ?? null)
+
+function blankSet(metric) {
+  return metric === 'time' ? { seconds: null, weight: null } : { reps: null, weight: null }
+}
+
+function exercisesFromRoutine(routine) {
+  return routine.exercises.map((ex) => ({
+    name: ex.name,
+    metric: ex.metric ?? 'reps',
+    sets: Array.from({ length: ex.targetSets || 1 }, () => blankSet(ex.metric)),
+  }))
+}
+
+function loadFromRoutine() {
+  exercises.value = selectedRoutine.value ? exercisesFromRoutine(selectedRoutine.value) : []
+}
+
+function addFreeExercise() {
+  exercises.value.push({ name: '', metric: 'reps', sets: [blankSet('reps')] })
+}
+
+function removeExercise(index) {
+  exercises.value.splice(index, 1)
+}
+
+function setExerciseMetric(exercise, metric) {
+  exercise.metric = metric
+  exercise.sets = exercise.sets.map(() => blankSet(metric))
+}
+
+function addSet(exercise) {
+  exercise.sets.push(blankSet(exercise.metric))
+}
+
+function removeSet(exercise, setIndex) {
+  exercise.sets.splice(setIndex, 1)
+}
+
+async function save() {
+  if (exercises.value.length === 0) {
+    error.value = 'Agrega al menos un ejercicio'
+    return
+  }
+  saving.value = true
+  error.value = ''
+  try {
+    await logWorkout({
+      date: date.value,
+      routineId: selectedRoutine.value?.id ?? null,
+      routineName: selectedRoutine.value?.name ?? '',
+      exercises: exercises.value,
+      notes: notes.value,
+    })
+    router.push({ name: 'gym-log-entrenamientos' })
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    saving.value = false
+  }
+}
+
+onMounted(async () => {
+  try {
+    routines.value = await getRoutines()
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+})
+</script>
+
+<template>
+  <div class="registrar-view">
+    <h1 class="h4 mb-3">Registrar entrenamiento</h1>
+
+    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-if="loading" class="text-muted">Cargando...</div>
+
+    <form v-else @submit.prevent="save">
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Fecha</label>
+          <input v-model="date" type="date" class="form-control" required />
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Rutina (opcional)</label>
+          <select v-model="selectedRoutineId" class="form-select" @change="loadFromRoutine">
+            <option value="">Entrenamiento libre</option>
+            <option v-for="r in routines" :key="r.id" :value="r.id">{{ r.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div v-for="(exercise, exIndex) in exercises" :key="exIndex" class="exercise-block mb-3">
+        <div class="d-flex gap-2 mb-2">
+          <input v-model="exercise.name" type="text" class="form-control" placeholder="Ejercicio" required />
+          <select
+            class="form-select metric-select"
+            :value="exercise.metric"
+            @change="setExerciseMetric(exercise, $event.target.value)"
+          >
+            <option value="reps">Reps</option>
+            <option value="time">Tiempo</option>
+          </select>
+          <button type="button" class="btn btn-outline-danger" @click="removeExercise(exIndex)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <div v-for="(set, setIndex) in exercise.sets" :key="setIndex" class="set-row mb-2">
+          <span class="set-number">Serie {{ setIndex + 1 }}</span>
+          <input
+            v-if="exercise.metric === 'time'"
+            v-model.number="set.seconds"
+            type="number"
+            min="0"
+            class="form-control"
+            placeholder="Segundos"
+          />
+          <input v-else v-model.number="set.reps" type="number" min="0" class="form-control" placeholder="Reps" />
+          <input v-model.number="set.weight" type="number" min="0" step="0.5" class="form-control" placeholder="Peso (kg)" />
+          <button type="button" class="btn btn-outline-secondary btn-sm" @click="removeSet(exercise, setIndex)">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="addSet(exercise)">
+          <i class="bi bi-plus-lg me-1"></i>Agregar serie
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-outline-primary btn-sm mb-3" @click="addFreeExercise">
+        <i class="bi bi-plus-lg me-1"></i>Agregar ejercicio
+      </button>
+
+      <div class="mb-3">
+        <label class="form-label">Notas</label>
+        <textarea v-model="notes" class="form-control" rows="2"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" :disabled="saving">
+        {{ saving ? 'Guardando...' : 'Guardar entrenamiento' }}
+      </button>
+    </form>
+  </div>
+</template>
+
+<style scoped>
+.exercise-block {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.set-number {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.metric-select {
+  max-width: 8rem;
+  flex: 0 0 auto;
+}
+</style>

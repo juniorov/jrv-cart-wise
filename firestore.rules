@@ -97,6 +97,33 @@ service cloud.firestore {
       }
     }
 
+    // --- gym-log (prefijo gym_log_) ---
+    match /gym_log_routines/{routineId} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+
+    match /gym_log_workouts/{workoutId} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+
+    // Doc id = uid (una sola sesión activa por usuario), por eso la regla compara directo
+    // contra el id del documento en vez de leer un campo ownerId.
+    match /gym_log_active_sessions/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Doc id = uid: plantilla recurrente del plan semanal, y su intercambio puntual de la
+    // semana en curso (mismo patrón que gym_log_active_sessions).
+    match /gym_log_weekly_plan/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /gym_log_week_overrides/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
     // Compartida entre apps: resuelve email -> uid para invitar a objetivos de ahorros.
     match /users_by_email/{email} {
       allow read: if isSignedIn();

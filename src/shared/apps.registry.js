@@ -57,4 +57,13 @@ export const apps = [
     routeBase: '/spray-mix',
     requiresAuth: false,
   },
+  {
+    slug: 'gym-log',
+    name: 'Gym Log',
+    description: 'Registro de rutinas y entrenamientos con progreso por calendario y gráfico',
+    icon: 'bi-activity',
+    color: '#dc2626',
+    routeBase: '/gym-log',
+    requiresAuth: true,
+  },
 ]
