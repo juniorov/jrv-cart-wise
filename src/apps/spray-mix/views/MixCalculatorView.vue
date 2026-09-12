@@ -153,6 +153,7 @@ function onQuickOzInput() {
 }
 
 .liters-input {
+  box-sizing: border-box;
   width: 100%;
   padding: 0.6rem 0.75rem;
   border: 1.5px solid #e2e8f0;
@@ -243,6 +244,9 @@ function onQuickOzInput() {
 }
 
 .quick-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   padding: 0.5rem 0.6rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 0.5rem;
